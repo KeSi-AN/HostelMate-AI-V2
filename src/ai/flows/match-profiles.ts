@@ -52,7 +52,7 @@ const MatchProfilesOutputSchema = z.object({
     structuredScore: z.number().describe('The score from structured data comparison, out of 50.'),
     semanticScore: z.number().describe('The score from AI-powered semantic analysis, out of 50.'),
     strengths: z.array(z.string()).describe('List of categories where users are highly compatible.'),
-    conflicts: z.array(z.string()).describe('List of categories where users may have conflicts.'),
+    conflicts: z.array(z.array(z.string())).describe('List of categories where users may have conflicts.'),
 });
 export type MatchProfilesOutput = z.infer<typeof MatchProfilesOutputSchema>;
 
@@ -173,29 +173,29 @@ const semanticPrompt = ai.definePrompt({
     output: {
         schema: z.object({
             semanticScore: z.number().min(0).max(50).describe("A score from 0-50 indicating semantic compatibility."),
-            matchAnalysis: z.string().describe("A concise summary of the match, highlighting shared values, interests, and potential discussion points based on their self-descriptions. Mention both positive and negative points.")
+            matchAnalysis: z.string().describe("A concise, bulleted summary of the match, highlighting shared values, interests, and potential discussion points based on their self-descriptions. Use markdown for bullets.")
         })
     },
-    prompt: `You are a roommate matching AI. Your task is to analyze the self-descriptions of two students, User A and User B, to determine their compatibility.
+    prompt: `You are a roommate matching AI. Your task is to analyze the self-descriptions of two students to determine their compatibility.
 
-    **User A's Self-Description:**
-    "{{{userA.aboutYourself}}}"
+    **Your Profile:**
+    - About me: "{{userA.aboutYourself}}"
+    - Looking for: "{{userA.idealRoommate}}"
 
-    **User A is looking for a roommate who is:**
-    "{{{userA.idealRoommate}}}"
+    **Potential Roommate's Profile:**
+    - About them: "{{userB.aboutYourself}}"
+    - Looking for: "{{userB.idealRoommate}}"
 
-    **User B's Self-Description:**
-    "{{{userB.aboutYourself}}}"
+    Analyze their compatibility based on their self-descriptions and what they are looking for.
 
-    **User B is looking for a roommate who is:**
-    "{{{userB.idealRoommate}}}"
+    Based on your analysis, provide a semantic compatibility score from 0 to 50.
 
-    Analyze the following:
-    1.  **Ideal-Self Match:** How well does User B's self-description ("aboutYourself") align with what User A is looking for ("idealRoommate")?
-    2.  **Reciprocal Match:** How well does User A's self-description ("aboutYourself") align with what User B is looking for ("idealRoommate")?
-    3.  **Personality & Lifestyle Overlap:** Identify shared interests, values, and potential lifestyle clashes from their self-descriptions.
-
-    Based on your analysis, provide a semantic compatibility score from 0 to 50 and generate a concise match analysis summary. The summary should be human-readable, helpful, and directly reference points from their descriptions.`,
+    Then, generate a concise match analysis summary in a bulleted list format using markdown.
+    - Start with a positive point of compatibility.
+    - Mention a potential point of conflict or something they should discuss.
+    - Add one more interesting shared point or difference.
+    - Do NOT use "User A" or "User B". Phrase it from the perspective of "Your profile" vs. "Their profile".
+    - Be friendly, helpful, and concise.`,
 });
 
 
@@ -218,12 +218,9 @@ const matchProfilesFlow = ai.defineFlow(
         // 3. Combine scores and analysis
         const finalScore = Math.min(100, structuredScore + semanticScore);
         
-        const finalAnalysis = `**AI Compatibility Analysis:**\n${semanticAnalysis}\n\n**Preference-Based Match:**\n${strengths.length > 0 ? `- Strong alignment in: ${strengths.join(', ')}.\n` : ''}${conflicts.length > 0 ? `- Potential conflict in: ${conflicts.join(', ')}.\n` : ''}`;
-
-
         return {
             compatibilityScore: finalScore,
-            matchAnalysis: finalAnalysis,
+            matchAnalysis: semanticAnalysis,
             structuredScore: structuredScore,
             semanticScore: semanticScore,
             strengths: strengths,

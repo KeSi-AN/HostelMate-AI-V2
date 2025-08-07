@@ -8,6 +8,8 @@ import { Copy, MessageSquare, UserCheck, UserX } from 'lucide-react';
 import Image from 'next/image';
 import { Separator } from '../ui/separator';
 import { UserWithMatchData } from '@/app/[hostelId]/dashboard/page';
+import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
+import { Lightbulb } from 'lucide-react';
 
 type RoommateCardProps = {
   user: UserWithMatchData;
@@ -101,8 +103,16 @@ export function RoommateCard({ user }: RoommateCardProps) {
                         </div>
 
                          <div className="space-y-2">
-                            <h4 className="font-semibold mb-2">AI Compatibility Analysis</h4>
-                            <p className="text-sm whitespace-pre-wrap text-muted-foreground">{user.matchAnalysis}</p>
+                            <Alert variant="default" className="mt-4">
+                                <Lightbulb className="h-4 w-4" />
+                                <AlertTitle className="font-semibold">AI Compatibility Analysis</AlertTitle>
+                                <AlertDescription>
+                                    <div 
+                                        className="text-sm whitespace-pre-wrap text-muted-foreground prose prose-sm" 
+                                        dangerouslySetInnerHTML={{ __html: user.matchAnalysis?.replace(/\*/g, '') || ''}}
+                                    />
+                                </AlertDescription>
+                            </Alert>
                         </div>
                     </div>
                 </AccordionContent>
