@@ -17,7 +17,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { ArrowLeft, ArrowRight, Sparkles } from 'lucide-radix';
+import { ArrowLeft, ArrowRight, Sparkles } from 'lucide-react';
 import { generateProfileDescription } from '@/ai/flows/generate-profile-description';
 
 const totalSteps = 10;
