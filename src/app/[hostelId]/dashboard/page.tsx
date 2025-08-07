@@ -22,27 +22,30 @@ export default function DashboardPage() {
   useEffect(() => {
     const fetchUsers = async () => {
       if (!currentUser) {
-        // If no user is logged in, show only mock data.
         setUsers(getMockUsers(6));
         setLoading(false);
         return;
       };
 
+      let fetchedUsers: UserProfile[] = [];
       try {
         const usersRef = collection(db, "users");
-        // Fetch all users except the current one.
-        const q = query(usersRef, where("uid", "!=", currentUser.uid));
+        // Query for users who are looking for a roommate and are not the current user.
+        // This query requires a composite index in Firestore.
+        const q = query(usersRef, where("isLookingForRoommate", "==", true), where("uid", "!=", currentUser.uid));
         const querySnapshot = await getDocs(q);
-        const fetchedUsers: UserProfile[] = [];
         querySnapshot.forEach((doc) => {
           fetchedUsers.push({ uid: doc.id, ...doc.data() } as UserProfile);
         });
-        
-        // Combine fetched users with mock data, ensuring no duplicates from mock data if real users exist.
+      } catch (error) {
+        console.error("Error fetching users:", error);
+        // This error is often caused by a missing Firestore index.
+        // Check the browser console for a link to create the required index.
+      } finally {
+        // Combine fetched users with mock data to ensure the list is populated.
         const mockUsers = getMockUsers(6);
         const combinedUsers = [...fetchedUsers];
         
-        // Add mock users if the total count is less than the desired number, avoiding duplicates.
         const existingUids = new Set(fetchedUsers.map(u => u.uid));
         for (const mockUser of mockUsers) {
             if (combinedUsers.length >= 6) break;
@@ -52,18 +55,12 @@ export default function DashboardPage() {
         }
         
         setUsers(combinedUsers);
-
-      } catch (error) {
-        console.error("Error fetching users, falling back to mock data:", error);
-        // If there's an error (like a missing index), show only mock data.
-        setUsers(getMockUsers(6));
-      } finally {
         setLoading(false);
       }
     };
 
     fetchUsers();
-  }, [currentUser]);
+  }, [currentUser, hostelId]);
 
   if (loading) {
     return <div>Loading dashboard...</div>;
