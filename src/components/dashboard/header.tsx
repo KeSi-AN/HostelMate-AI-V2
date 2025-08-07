@@ -24,7 +24,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Logo } from "../logo";
 import Image from "next/image";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import { useAuth } from "@/hooks/use-auth";
 
 type HeaderProps = {
     hostelName: string;
@@ -32,7 +33,14 @@ type HeaderProps = {
 
 export function Header({ hostelName }: HeaderProps) {
   const params = useParams();
+  const router = useRouter();
+  const { logout } = useAuth();
   const hostelId = params.hostelId;
+
+  const handleLogout = async () => {
+    await logout();
+    router.push('/');
+  }
 
   return (
     <header className="sticky top-0 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6 z-50">
@@ -86,7 +94,7 @@ export function Header({ hostelName }: HeaderProps) {
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={handleLogout}>
               <LogOut className="mr-2 h-4 w-4" />
               <span>Logout</span>
             </DropdownMenuItem>
