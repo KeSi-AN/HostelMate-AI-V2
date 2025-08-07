@@ -1,16 +1,16 @@
 
 'use client';
-import type { UserProfile } from '@/lib/types';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { CheckCircle2, Copy, HeartHandshake, MessageSquare, User, XCircle } from 'lucide-react';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Copy, MessageSquare, UserCheck, UserX } from 'lucide-react';
 import Image from 'next/image';
 import { Separator } from '../ui/separator';
+import { UserWithMatchData } from '@/app/[hostelId]/dashboard/page';
 
 type RoommateCardProps = {
-  user: UserProfile & { matchScore?: number };
+  user: UserWithMatchData;
 };
 
 function MatchPercentage({ score }: { score: number }) {
@@ -30,7 +30,7 @@ function MatchPercentage({ score }: { score: number }) {
 }
 
 export function RoommateCard({ user }: RoommateCardProps) {
-  const matchScore = user.matchScore || Math.floor(Math.random() * 61) + 40;
+  const matchScore = user.compatibilityScore || 0;
 
   return (
     <Card className="overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300">
@@ -59,22 +59,22 @@ export function RoommateCard({ user }: RoommateCardProps) {
                 </CardHeader>
 
                 <CardContent className="p-4 pt-0">
-                     <div className="text-sm space-y-2 mb-4">
+                    <div className="text-sm space-y-2 mb-4">
+                      {user.strengths && user.strengths.length > 0 && (
                         <div className="flex items-start">
-                            <CheckCircle2 className="w-4 h-4 mr-2 mt-0.5 text-green-500 flex-shrink-0" />
-                            <span>Same sleep schedule (11 PM - 7 AM)</span>
+                          <UserCheck className="w-4 h-4 mr-2 mt-0.5 text-green-500 flex-shrink-0" />
+                          <span>Strong alignment in: {user.strengths.join(', ')}</span>
                         </div>
+                      )}
+                      {user.conflicts && user.conflicts.length > 0 && (
                         <div className="flex items-start">
-                            <CheckCircle2 className="w-4 h-4 mr-2 mt-0.5 text-green-500 flex-shrink-0" />
-                            <span>Both prefer quiet study</span>
+                          <UserX className="w-4 h-4 mr-2 mt-0.5 text-orange-500 flex-shrink-0" />
+                          <span>Potential conflict in: {user.conflicts.join(', ')}</span>
                         </div>
-                        <div className="flex items-start">
-                            <HeartHandshake className="w-4 h-4 mr-2 mt-0.5 text-blue-500 flex-shrink-0" />
-                            <span>Interests: Startups, Coding</span>
-                        </div>
+                      )}
                     </div>
                     
-                    <AccordionTrigger className="bg-muted/50 hover:bg-muted rounded-md px-4 py-2 text-sm">View Details</AccordionTrigger>
+                    <AccordionTrigger className="bg-muted/50 hover:bg-muted rounded-md px-4 py-2 text-sm">View Full Analysis</AccordionTrigger>
                 </CardContent>
 
                 <AccordionContent>
@@ -102,18 +102,7 @@ export function RoommateCard({ user }: RoommateCardProps) {
 
                          <div className="space-y-2">
                             <h4 className="font-semibold mb-2">AI Compatibility Analysis</h4>
-                             <div className="flex items-start text-sm">
-                                 <CheckCircle2 className="w-4 h-4 mr-2 mt-0.5 text-green-500 flex-shrink-0" />
-                                 <span>High personality match (88%) based on self-description.</span>
-                             </div>
-                             <div className="flex items-start text-sm">
-                                 <User className="w-4 h-4 mr-2 mt-0.5 text-blue-500 flex-shrink-0" />
-                                 <span>Moderate expectation alignment (72%). You seem to value cleanliness more.</span>
-                             </div>
-                             <div className="flex items-start text-sm">
-                                 <XCircle className="w-4 h-4 mr-2 mt-0.5 text-orange-500 flex-shrink-0" />
-                                 <span>Potential Conflict: Different wake-up times on weekends might need discussion.</span>
-                             </div>
+                            <p className="text-sm whitespace-pre-wrap text-muted-foreground">{user.matchAnalysis}</p>
                         </div>
                     </div>
                 </AccordionContent>

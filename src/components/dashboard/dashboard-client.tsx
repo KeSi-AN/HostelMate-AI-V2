@@ -4,36 +4,27 @@ import { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { FilterSidebar, FilterState } from './filter-sidebar';
 import { RoommateCard } from './roommate-card';
-import type { UserProfile } from '@/lib/types';
 import { BarChart, Users, Eye } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '../ui/sheet';
 import { SlidersHorizontal } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { UserWithMatchData } from '@/app/[hostelId]/dashboard/page';
 
 
-export function DashboardClient({ users, hostelName }: { users: UserProfile[], hostelName: string }) {
+export function DashboardClient({ users, hostelName }: { users: UserWithMatchData[], hostelName: string }) {
   const [filteredUsers, setFilteredUsers] = useState(users);
   const isMobile = useIsMobile();
   const [filters, setFilters] = useState<FilterState>({
     search: '',
     years: [],
     branches: [],
-    matchPercentage: 50,
+    matchPercentage: 0,
     sortBy: 'match-desc',
   });
 
-  const processedUsers = useMemo(() => {
-    return users.map(user => ({
-      ...user,
-      // Add a mock match score for sorting and filtering
-      matchScore: Math.floor(Math.random() * 61) + 40,
-    }));
-  }, [users]);
-
-
   useEffect(() => {
-    let newFilteredUsers = [...processedUsers];
+    let newFilteredUsers = [...users];
 
     // Apply search filter
     if (filters.search) {
@@ -57,15 +48,16 @@ export function DashboardClient({ users, hostelName }: { users: UserProfile[], h
     }
     
     // Apply match percentage filter
-    newFilteredUsers = newFilteredUsers.filter(user => user.matchScore >= filters.matchPercentage);
+    newFilteredUsers = newFilteredUsers.filter(user => (user.compatibilityScore || 0) >= filters.matchPercentage);
 
     // Apply sorting
     switch (filters.sortBy) {
         case 'match-desc':
-            newFilteredUsers.sort((a, b) => b.matchScore - a.matchScore);
+            newFilteredUsers.sort((a, b) => (b.compatibilityScore || 0) - (a.compatibilityScore || 0));
             break;
         case 'newest':
-            newFilteredUsers.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+            // @ts-ignore
+            newFilteredUsers.sort((a, b) => new Date(b.createdAt?.seconds * 1000 || 0).getTime() - new Date(a.createdAt?.seconds * 1000 || 0).getTime());
             break;
         case 'same-year':
             // This would be more effective if we knew the current user's year.
@@ -79,8 +71,13 @@ export function DashboardClient({ users, hostelName }: { users: UserProfile[], h
 
 
     setFilteredUsers(newFilteredUsers);
-  }, [filters, processedUsers]);
+  }, [filters, users]);
   
+  const avgMatch = useMemo(() => {
+    if (users.length === 0) return 0;
+    const total = users.reduce((acc, user) => acc + (user.compatibilityScore || 0), 0);
+    return Math.round(total / users.length);
+  }, [users]);
 
   return (
     <>
@@ -101,7 +98,7 @@ export function DashboardClient({ users, hostelName }: { users: UserProfile[], h
             <BarChart className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">85%</div>
+            <div className="text-2xl font-bold">{avgMatch}%</div>
             <p className="text-xs text-muted-foreground">Average compatibility score</p>
           </CardContent>
         </Card>
@@ -138,7 +135,7 @@ export function DashboardClient({ users, hostelName }: { users: UserProfile[], h
           </div>
           <div className="grid gap-4 md:gap-6 lg:grid-cols-2 xl:grid-cols-3">
             {filteredUsers.map((user) => (
-              <RoommateCard key={user.uid} user={{...user, matchScore: user.matchScore}} />
+              <RoommateCard key={user.uid} user={user} />
             ))}
           </div>
         </div>
