@@ -32,7 +32,7 @@ export const Step5_SocialActivities = () => {
                     <FormItem className="space-y-3">
                         <FormLabel className="font-semibold">Involvement in Sports</FormLabel>
                         <FormControl>
-                            <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-col space-y-1">
+                            <RadioGroup onValueChange={field.onChange} value={field.value ?? undefined} className="flex flex-col space-y-1">
                                 {options.sports.map(option => (
                                     <FormItem key={option} className="flex items-center space-x-3 space-y-0">
                                         <FormControl><RadioGroupItem value={option} /></FormControl>
@@ -52,7 +52,7 @@ export const Step5_SocialActivities = () => {
                     <FormItem className="space-y-3">
                         <FormLabel className="font-semibold">Weekend Plans</FormLabel>
                         <FormControl>
-                            <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-col space-y-1">
+                            <RadioGroup onValueChange={field.onChange} value={field.value ?? undefined} className="flex flex-col space-y-1">
                                 {options.weekend.map(option => (
                                     <FormItem key={option} className="flex items-center space-x-3 space-y-0">
                                         <FormControl><RadioGroupItem value={option} /></FormControl>
@@ -72,7 +72,7 @@ export const Step5_SocialActivities = () => {
                     <FormItem className="space-y-3">
                         <FormLabel className="font-semibold">Mess Timing Preference</FormLabel>
                         <FormControl>
-                            <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-col space-y-1">
+                            <RadioGroup onValueChange={field.onChange} value={field.value ?? undefined} className="flex flex-col space-y-1">
                                 {options.mess.map(option => (
                                     <FormItem key={option} className="flex items-center space-x-3 space-y-0">
                                         <FormControl><RadioGroupItem value={option} /></FormControl>
@@ -92,7 +92,7 @@ export const Step5_SocialActivities = () => {
                     <FormItem className="space-y-3">
                         <FormLabel className="font-semibold">How often do you visit the common room?</FormLabel>
                         <FormControl>
-                            <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-col space-y-1">
+                            <RadioGroup onValueChange={field.onChange} value={field.value ?? undefined} className="flex flex-col space-y-1">
                                 {options.commonRoom.map(option => (
                                     <FormItem key={option} className="flex items-center space-x-3 space-y-0">
                                         <FormControl><RadioGroupItem value={option} /></FormControl>

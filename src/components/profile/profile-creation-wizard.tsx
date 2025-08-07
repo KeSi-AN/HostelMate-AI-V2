@@ -1,4 +1,5 @@
 
+
 'use client'
 
 import { useState } from 'react';
@@ -60,42 +61,42 @@ export function ProfileCreationWizard() {
         isLookingForRoommate: true,
         name: '',
         whatsapp: '',
-        yearOfStudy: undefined,
-        branch: undefined,
+        yearOfStudy: null,
+        branch: null,
         rollNumber: '',
         hostelBlock: '',
         roomNumber: '',
         dailyRoutine: {
-            wakeUp: undefined,
-            sleep: undefined,
-            classSchedule: undefined,
-            studyHours: undefined,
+            wakeUp: null,
+            sleep: null,
+            classSchedule: null,
+            studyHours: null,
         },
         studyPreferences: {
-            location: undefined,
-            style: undefined,
-            projectWork: undefined,
+            location: null,
+            style: null,
+            projectWork: null,
         },
         lifestyle: {
-            cleanliness: undefined,
-            organization: undefined,
-            visitors: undefined,
-            music: undefined,
-            lights: undefined,
+            cleanliness: null,
+            organization: null,
+            visitors: null,
+            music: null,
+            lights: null,
         },
         socialActivities: {
-            sports: undefined,
-            weekend: undefined,
-            mess: undefined,
-            commonRoom: undefined,
+            sports: null,
+            weekend: null,
+            mess: null,
+            commonRoom: null,
             clubs: [],
         },
         roomPreferences: {
-            floor: undefined,
-            orientation: undefined,
-            nearBathroom: undefined,
-            nearCommon: undefined,
-            corner: undefined,
+            floor: null,
+            orientation: null,
+            nearBathroom: null,
+            nearCommon: null,
+            corner: null,
         },
         previousRoommate: {
             name: '',
@@ -149,7 +150,7 @@ export function ProfileCreationWizard() {
         router.push(`/${hostelId}/dashboard`);
     } catch (error) {
         console.error("Error creating profile:", error);
-        toast({ variant: "destructive", title: "Error", description: "There was an issue saving your profile."});
+        toast({ variant: "destructive", title: "Error", description: "There was issue saving your profile" });
     } finally {
         setIsSubmitting(false);
     }

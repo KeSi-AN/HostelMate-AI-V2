@@ -23,7 +23,7 @@ export const Step4_Lifestyle = () => {
                     <FormItem className="space-y-3">
                         <FormLabel className="font-semibold">Cleanliness</FormLabel>
                         <FormControl>
-                            <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-col space-y-1">
+                            <RadioGroup onValueChange={field.onChange} value={field.value ?? undefined} className="flex flex-col space-y-1">
                                 {options.cleanliness.map(option => (
                                     <FormItem key={option} className="flex items-center space-x-3 space-y-0">
                                         <FormControl><RadioGroupItem value={option} /></FormControl>
@@ -43,7 +43,7 @@ export const Step4_Lifestyle = () => {
                     <FormItem className="space-y-3">
                         <FormLabel className="font-semibold">Room Organization</FormLabel>
                         <FormControl>
-                            <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-col space-y-1">
+                            <RadioGroup onValueChange={field.onChange} value={field.value ?? undefined} className="flex flex-col space-y-1">
                                 {options.organization.map(option => (
                                     <FormItem key={option} className="flex items-center space-x-3 space-y-0">
                                         <FormControl><RadioGroupItem value={option} /></FormControl>
@@ -63,7 +63,7 @@ export const Step4_Lifestyle = () => {
                     <FormItem className="space-y-3">
                         <FormLabel className="font-semibold">Having Visitors Over</FormLabel>
                         <FormControl>
-                            <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-col space-y-1">
+                            <RadioGroup onValueChange={field.onChange} value={field.value ?? undefined} className="flex flex-col space-y-1">
                                 {options.visitors.map(option => (
                                     <FormItem key={option} className="flex items-center space-x-3 space-y-0">
                                         <FormControl><RadioGroupItem value={option} /></FormControl>
@@ -83,7 +83,7 @@ export const Step4_Lifestyle = () => {
                     <FormItem className="space-y-3">
                         <FormLabel className="font-semibold">Music in the Room</FormLabel>
                         <FormControl>
-                            <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-col space-y-1">
+                            <RadioGroup onValueChange={field.onChange} value={field.value ?? undefined} className="flex flex-col space-y-1">
                                 {options.music.map(option => (
                                     <FormItem key={option} className="flex items-center space-x-3 space-y-0">
                                         <FormControl><RadioGroupItem value={option} /></FormControl>
@@ -103,7 +103,7 @@ export const Step4_Lifestyle = () => {
                     <FormItem className="space-y-3">
                         <FormLabel className="font-semibold">Lights Out Time</FormLabel>
                         <FormControl>
-                            <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-col space-y-1">
+                            <RadioGroup onValueChange={field.onChange} value={field.value ?? undefined} className="flex flex-col space-y-1">
                                 {options.lights.map(option => (
                                     <FormItem key={option} className="flex items-center space-x-3 space-y-0">
                                         <FormControl><RadioGroupItem value={option} /></FormControl>

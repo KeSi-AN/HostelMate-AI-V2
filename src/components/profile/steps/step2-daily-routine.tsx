@@ -22,7 +22,7 @@ export const Step2_DailyRoutine = () => {
                     <FormItem className="space-y-3">
                         <FormLabel className="font-semibold">Wake-up Time</FormLabel>
                         <FormControl>
-                            <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-col space-y-1">
+                            <RadioGroup onValueChange={field.onChange} value={field.value ?? undefined} className="flex flex-col space-y-1">
                                 {routineOptions.wakeUp.map(option => (
                                     <FormItem key={option} className="flex items-center space-x-3 space-y-0">
                                         <FormControl><RadioGroupItem value={option} /></FormControl>
@@ -42,7 +42,7 @@ export const Step2_DailyRoutine = () => {
                     <FormItem className="space-y-3">
                         <FormLabel className="font-semibold">Sleep Time</FormLabel>
                         <FormControl>
-                            <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-col space-y-1">
+                            <RadioGroup onValueChange={field.onChange} value={field.value ?? undefined} className="flex flex-col space-y-1">
                                 {routineOptions.sleep.map(option => (
                                     <FormItem key={option} className="flex items-center space-x-3 space-y-0">
                                         <FormControl><RadioGroupItem value={option} /></FormControl>
@@ -62,7 +62,7 @@ export const Step2_DailyRoutine = () => {
                     <FormItem className="space-y-3">
                         <FormLabel className="font-semibold">Class Schedule</FormLabel>
                         <FormControl>
-                            <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-col space-y-1">
+                            <RadioGroup onValueChange={field.onChange} value={field.value ?? undefined} className="flex flex-col space-y-1">
                                 {routineOptions.classSchedule.map(option => (
                                     <FormItem key={option} className="flex items-center space-x-3 space-y-0">
                                         <FormControl><RadioGroupItem value={option} /></FormControl>
@@ -82,7 +82,7 @@ export const Step2_DailyRoutine = () => {
                     <FormItem className="space-y-3">
                         <FormLabel className="font-semibold">Study Hours</FormLabel>
                         <FormControl>
-                            <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-col space-y-1">
+                            <RadioGroup onValueChange={field.onChange} value={field.value ?? undefined} className="flex flex-col space-y-1">
                                 {routineOptions.studyHours.map(option => (
                                     <FormItem key={option} className="flex items-center space-x-3 space-y-0">
                                         <FormControl><RadioGroupItem value={option} /></FormControl>

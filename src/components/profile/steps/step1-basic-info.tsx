@@ -17,13 +17,13 @@ export const Step1_BasicInfo = () => {
                 <FormItem><FormLabel>WhatsApp Number</FormLabel><FormControl><Input {...field} placeholder="+91 XXXXXXXXXX" /></FormControl><FormMessage /></FormItem>
             )} />
             <FormField control={control} name="yearOfStudy" render={({ field }) => (
-                <FormItem><FormLabel>Year of Study</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormItem><FormLabel>Year of Study</FormLabel><Select onValueChange={field.onChange} value={field.value ?? undefined} >
                     <FormControl><SelectTrigger><SelectValue placeholder="Select year" /></SelectTrigger></FormControl>
                     <SelectContent><SelectItem value="Freshman">Freshman</SelectItem><SelectItem value="Sophomore">Sophomore</SelectItem><SelectItem value="Junior">Junior</SelectItem><SelectItem value="Senior">Senior</SelectItem></SelectContent>
                 </Select><FormMessage /></FormItem>
             )} />
             <FormField control={control} name="branch" render={({ field }) => (
-                <FormItem><FormLabel>Branch/Department</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormItem><FormLabel>Branch/Department</FormLabel><Select onValueChange={field.onChange} value={field.value ?? undefined}>
                     <FormControl><SelectTrigger><SelectValue placeholder="Select branch" /></SelectTrigger></FormControl>
                     <SelectContent><SelectItem value="ECS">ECS</SelectItem><SelectItem value="HSS">HSS</SelectItem><SelectItem value="Mathematics">Mathematics</SelectItem><SelectItem value="Physics">Physics</SelectItem><SelectItem value="Biology">Biology</SelectItem><SelectItem value="Chemistry">Chemistry</SelectItem><SelectItem value="Data Science">Data Science</SelectItem></SelectContent>
                 </Select><FormMessage /></FormItem>
