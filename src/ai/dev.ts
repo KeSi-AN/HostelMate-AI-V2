@@ -3,3 +3,4 @@ config();
 
 import '@/ai/flows/suggest-activities.ts';
 import '@/ai/flows/generate-profile-description.ts';
+import '@/ai/flows/match-profiles.ts';
