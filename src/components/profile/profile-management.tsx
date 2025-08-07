@@ -1,39 +1,9 @@
 'use client';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { UserProfile } from "@/lib/types";
-import { ProfileCreationWizard } from "./profile-creation-wizard";
 import { Button } from "../ui/button";
 import { Switch } from "../ui/switch";
 import { Label } from "../ui/label";
-import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
-import { Terminal } from "lucide-react";
-
-function ViewProfileTab({ user }: { user: UserProfile }) {
-    return (
-        <Card>
-            <CardHeader>
-                <CardTitle className="font-headline">{user.name}</CardTitle>
-                <CardDescription>{user.yearOfStudy} - {user.branch}</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div><span className="font-semibold">Email:</span> {user.email}</div>
-                    <div><span className="font-semibold">WhatsApp:</span> {user.whatsapp}</div>
-                    <div><span className="font-semibold">Location:</span> {user.hostelBlock}, Room {user.roomNumber}</div>
-                    <div><span className="font-semibold">Roll Number:</span> {user.rollNumber}</div>
-                </div>
-                <Alert>
-                    <Terminal className="h-4 w-4" />
-                    <AlertTitle>Developer Note</AlertTitle>
-                    <AlertDescription>
-                        This is a read-only view. A full implementation would display all the user's profile information in a well-formatted way.
-                    </AlertDescription>
-                </Alert>
-            </CardContent>
-        </Card>
-    );
-}
 
 function SettingsTab() {
     return (
@@ -66,27 +36,12 @@ function SettingsTab() {
     )
 }
 
-export function ProfileManagement({ user }: { user: UserProfile }) {
+export function ProfileManagement() {
   return (
-    <Tabs defaultValue="view" className="w-full">
-      <TabsList className="grid w-full grid-cols-3">
-        <TabsTrigger value="view">View Profile</TabsTrigger>
-        <TabsTrigger value="edit">Edit Profile</TabsTrigger>
+    <Tabs defaultValue="settings" className="w-full">
+      <TabsList className="grid w-full grid-cols-1">
         <TabsTrigger value="settings">Settings</TabsTrigger>
       </TabsList>
-      <TabsContent value="view" className="mt-6">
-        <ViewProfileTab user={user} />
-      </TabsContent>
-      <TabsContent value="edit" className="mt-6">
-        <Alert className="mb-6">
-            <Terminal className="h-4 w-4" />
-            <AlertTitle>Developer Note</AlertTitle>
-            <AlertDescription>
-                This form reuses the profile creation wizard. In a real app, it would be pre-filled with the user's existing data from Firestore.
-            </AlertDescription>
-        </Alert>
-        <ProfileCreationWizard />
-      </TabsContent>
       <TabsContent value="settings" className="mt-6">
         <SettingsTab />
       </TabsContent>

@@ -1,3 +1,4 @@
+
 import { ProfileCreationWizard } from "@/components/profile/profile-creation-wizard";
 
 export default function CreateProfilePage() {

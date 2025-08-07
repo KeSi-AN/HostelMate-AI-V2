@@ -21,17 +21,21 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Logo } from "../logo";
 import Image from "next/image";
+import { useParams } from "next/navigation";
 
 type HeaderProps = {
     hostelName: string;
 }
 
 export function Header({ hostelName }: HeaderProps) {
+  const params = useParams();
+  const hostelId = params.hostelId;
+
   return (
     <header className="sticky top-0 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6 z-50">
       <nav className="hidden flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6">
         <Link
-          href="#"
+          href={`/${hostelId}/dashboard`}
           className="flex items-center gap-2 text-lg font-semibold md:text-base"
         >
           <Logo />
@@ -66,13 +70,17 @@ export function Header({ hostelName }: HeaderProps) {
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <User className="mr-2 h-4 w-4" />
-              <span>View Profile</span>
+            <DropdownMenuItem asChild>
+              <Link href={`/${hostelId}/profile`}>
+                <User className="mr-2 h-4 w-4" />
+                <span>View Profile</span>
+              </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Settings className="mr-2 h-4 w-4" />
-              <span>Settings</span>
+             <DropdownMenuItem asChild>
+              <Link href={`/${hostelId}/profile/edit`}>
+                 <Settings className="mr-2 h-4 w-4" />
+                 <span>Edit Profile</span>
+              </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Link href="/hostel1_boys/profile/create">
