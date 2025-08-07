@@ -1,8 +1,11 @@
+
 'use client'
 
 import { useState } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useRouter, useParams } from 'next/navigation';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -20,6 +23,11 @@ import { Step7_PreviousRoommate } from './steps/step7-previous-roommate';
 import { Step8_About } from './steps/step8-about';
 import { Step9_IdealRoommate } from './steps/step9-ideal-roommate';
 import { Step10_MatchingPriority } from './steps/step10-matching-priority';
+import { useAuth } from '@/hooks/use-auth';
+import { useToast } from '@/hooks/use-toast';
+import { db } from '@/lib/firebase';
+import type { UserProfile } from '@/lib/types';
+
 
 const totalSteps = 10;
 
@@ -38,63 +46,28 @@ const steps = [
 
 export function ProfileCreationWizard() {
   const [currentStep, setCurrentStep] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const CurrentStepComponent = steps[currentStep].component;
+  const router = useRouter();
+  const params = useParams();
+  const { user: currentUser } = useAuth();
+  const { toast } = useToast();
+  const hostelId = params.hostelId as string;
 
-  const methods = useForm({
+  const methods = useForm<UserProfile>({
     mode: 'onChange',
+    // You can prefill with existing data here if needed
     defaultValues: {
-        name: '',
-        whatsapp: '',
-        yearOfStudy: '',
-        branch: '',
-        rollNumber: '',
         isLookingForRoommate: true,
-        dailyRoutine: {
-            wakeUp: '',
-            sleep: '',
-            classSchedule: '',
-            studyHours: '',
-        },
-        studyPreferences: {
-            location: '',
-            style: '',
-            projectWork: '',
-        },
-        lifestyle: {
-            cleanliness: '',
-            organization: '',
-            visitors: '',
-            music: '',
-            lights: ''
-        },
-        socialActivities: {
-            sports: '',
-            clubs: [],
-            weekend: '',
-            mess: '',
-            commonRoom: ''
-        },
-        roomPreferences: {
-            floor: '',
-            orientation: '',
-            nearBathroom: '',
-            nearCommon: '',
-            corner: ''
-        },
-        previousRoommate: {
-            name: '',
-        },
-        aboutYourself: '',
-        idealRoommate: '',
-        matchingPriority: [],
+        // Initialize other fields as empty strings or default values
     }
   });
 
   const { handleSubmit, trigger } = methods;
 
   const handleNext = async () => {
-    // const isValid = await trigger();
-    const isValid = true; // Bypassing validation for now
+    // This can be improved to trigger validation for the current step's fields
+    const isValid = true;
     if (isValid) {
       if (currentStep < totalSteps - 1) {
         setCurrentStep(prev => prev + 1);
@@ -108,9 +81,35 @@ export function ProfileCreationWizard() {
     }
   };
 
-  const onSubmit = (data:any) => {
-    console.log('Profile submitted:', data);
-    // Handle final submission to Firebase
+  const onSubmit = async (data: UserProfile) => {
+    if (!currentUser) {
+        toast({ variant: "destructive", title: "Not authenticated", description: "You must be logged in to create a profile."});
+        return;
+    }
+
+    setIsSubmitting(true);
+    try {
+        const profileData = {
+            ...data,
+            uid: currentUser.uid,
+            email: currentUser.email,
+            hostelId: hostelId,
+            createdAt: serverTimestamp(),
+            lastUpdated: serverTimestamp(),
+            lastActive: serverTimestamp(),
+            profileCompleteness: 100, // Or calculate based on fields filled
+        };
+
+        await setDoc(doc(db, "users", currentUser.uid), profileData);
+
+        toast({ title: "Profile Created!", description: "Your profile has been saved successfully."});
+        router.push(`/${hostelId}/dashboard`);
+    } catch (error) {
+        console.error("Error creating profile:", error);
+        toast({ variant: "destructive", title: "Error", description: "There was an issue saving your profile."});
+    } finally {
+        setIsSubmitting(false);
+    }
   };
 
   return (
@@ -153,7 +152,9 @@ export function ProfileCreationWizard() {
                         <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                 ) : (
-                    <Button type="submit">Finish & Submit Profile</Button>
+                    <Button type="submit" disabled={isSubmitting}>
+                        {isSubmitting ? 'Saving Profile...' : 'Finish & Submit Profile'}
+                    </Button>
                 )}
             </div>
         </form>

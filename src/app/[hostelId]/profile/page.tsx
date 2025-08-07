@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,29 +21,77 @@ import {
 import { ArrowLeft, Edit, Phone, MapPin, Clock, Book, Users, Home, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { UserProfile } from '@/lib/types';
-import { getMockUsers } from '@/lib/mock-data';
+import { useAuth } from '@/hooks/use-auth';
+import { doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import { useToast } from '@/hooks/use-toast';
 
 export default function ProfilePage() {
   const params = useParams();
   const router = useRouter();
+  const { user: currentUser, logout } = useAuth();
+  const { toast } = useToast();
   const hostelId = params.hostelId as string;
 
-  const [profile] = useState<UserProfile>(getMockUsers(1)[0]);
-  const [isLooking, setIsLooking] = useState(profile.isLookingForRoommate);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const handleToggleLooking = (checked: boolean) => {
-    setIsLooking(checked);
-    // In a real app, you would update this in Firebase
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (currentUser) {
+        const docRef = doc(db, 'users', currentUser.uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const data = docSnap.data() as Omit<UserProfile, 'uid'>;
+          setProfile({ ...data, uid: currentUser.uid });
+        } else {
+          console.log('No such document!');
+          // Optionally redirect to create profile page
+          router.push(`/${hostelId}/profile/create`);
+        }
+      }
+      setLoading(false);
+    };
+
+    fetchProfile();
+  }, [currentUser, hostelId, router]);
+
+  const handleToggleLooking = async (checked: boolean) => {
+    if (!profile) return;
+    try {
+        const docRef = doc(db, 'users', profile.uid);
+        await updateDoc(docRef, {
+            isLookingForRoommate: checked
+        });
+        setProfile(prev => prev ? { ...prev, isLookingForRoommate: checked } : null);
+        toast({ title: "Success", description: "Your status has been updated." });
+    } catch(e) {
+        console.error("Error updating status: ", e);
+        toast({ variant: "destructive", title: "Error", description: "Could not update your status." });
+    }
   };
 
-  const handleDeleteProfile = () => {
-    // In a real app, you would delete the profile from Firebase
-    console.log('Deleting profile...');
-    router.push('/');
+  const handleDeleteProfile = async () => {
+    if (!currentUser) return;
+    try {
+        await deleteDoc(doc(db, "users", currentUser.uid));
+        // We can also delete the auth user, but that is a more sensitive operation.
+        // For now we just delete the profile data and log them out.
+        toast({ title: "Profile Deleted", description: "Your profile has been successfully deleted." });
+        await logout();
+        router.push('/');
+    } catch (e) {
+        console.error("Error deleting profile: ", e);
+        toast({ variant: "destructive", title: "Error", description: "Could not delete your profile." });
+    }
   };
+
+  if (loading) {
+    return <div>Loading profile...</div>;
+  }
 
   if (!profile) {
-    return <div>Loading profile...</div>;
+    return <div>Could not load profile.</div>;
   }
 
   return (
@@ -68,7 +116,7 @@ export default function ProfilePage() {
                 </div>
                 <div className="flex items-center space-x-4">
                   <div className="flex items-center space-x-2">
-                    <Switch checked={isLooking} onCheckedChange={handleToggleLooking} />
+                    <Switch checked={profile.isLookingForRoommate} onCheckedChange={handleToggleLooking} />
                     <span className="text-sm">Looking for roommate</span>
                   </div>
                   <Link href={`/${hostelId}/profile/edit`}>
@@ -108,7 +156,7 @@ export default function ProfilePage() {
                   {profile.hostelBlock} - {profile.roomNumber}
                 </p>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Roommate: {profile.currentRoommate.name} ({profile.currentRoommate.year})
+                  This info is from your initial profile creation.
                 </p>
               </CardContent>
             </Card>
@@ -122,11 +170,6 @@ export default function ProfilePage() {
                   <Clock className="h-5 w-5 mr-2" />
                   Daily Routine
                 </CardTitle>
-                <Link href={`/${hostelId}/profile/edit`}>
-                  <Button variant="ghost" size="sm">
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                </Link>
               </div>
             </CardHeader>
             <CardContent>
@@ -154,17 +197,10 @@ export default function ProfilePage() {
           {/* Study Preferences */}
           <Card>
             <CardHeader>
-              <div className="flex justify-between items-center">
-                <CardTitle className="text-lg flex items-center">
-                  <Book className="h-5 w-5 mr-2" />
-                  Study Preferences
-                </CardTitle>
-                <Link href={`/${hostelId}/profile/edit`}>
-                  <Button variant="ghost" size="sm">
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                </Link>
-              </div>
+              <CardTitle className="text-lg flex items-center">
+                <Book className="h-5 w-5 mr-2" />
+                Study Preferences
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -187,17 +223,10 @@ export default function ProfilePage() {
           {/* Lifestyle */}
           <Card>
             <CardHeader>
-              <div className="flex justify-between items-center">
                 <CardTitle className="text-lg flex items-center">
                   <Home className="h-5 w-5 mr-2" />
                   Lifestyle
                 </CardTitle>
-                <Link href={`/${hostelId}/profile/edit`}>
-                  <Button variant="ghost" size="sm">
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                </Link>
-              </div>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -228,17 +257,10 @@ export default function ProfilePage() {
           {/* Social Activities */}
           <Card>
             <CardHeader>
-              <div className="flex justify-between items-center">
                 <CardTitle className="text-lg flex items-center">
                   <Users className="h-5 w-5 mr-2" />
                   Social Activities
                 </CardTitle>
-                <Link href={`/${hostelId}/profile/edit`}>
-                  <Button variant="ghost" size="sm">
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                </Link>
-              </div>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -273,14 +295,7 @@ export default function ProfilePage() {
           {/* Additional Details */}
           <Card>
             <CardHeader>
-              <div className="flex justify-between items-center">
-                <CardTitle className="text-lg">About Me</CardTitle>
-                <Link href={`/${hostelId}/profile/edit`}>
-                  <Button variant="ghost" size="sm">
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                </Link>
-              </div>
+              <CardTitle className="text-lg">About Me</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-foreground/80">{profile.aboutYourself}</p>
@@ -289,14 +304,7 @@ export default function ProfilePage() {
           
            <Card>
             <CardHeader>
-              <div className="flex justify-between items-center">
                 <CardTitle className="text-lg">Looking for...</CardTitle>
-                <Link href={`/${hostelId}/profile/edit`}>
-                  <Button variant="ghost" size="sm">
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                </Link>
-              </div>
             </CardHeader>
             <CardContent>
               <p className="text-foreground/80">{profile.idealRoommate}</p>
@@ -306,14 +314,7 @@ export default function ProfilePage() {
           {/* Matching Priority */}
           <Card>
             <CardHeader>
-              <div className="flex justify-between items-center">
-                <CardTitle className="text-lg">Matching Priority</CardTitle>
-                <Link href={`/${hostelId}/profile/edit`}>
-                  <Button variant="ghost" size="sm">
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                </Link>
-              </div>
+              <CardTitle className="text-lg">Matching Priority</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
