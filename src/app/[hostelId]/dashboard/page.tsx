@@ -48,10 +48,15 @@ export default function DashboardPage() {
       }
       const currentUserProfile = { uid: currentUser.uid, ...currentUserDocSnap.data() } as UserProfile;
 
-      // Fetch potential roommates
+      // Fetch potential roommates from the same hostel
       const usersRef = collection(db, "users");
       // This query requires a composite index in Firestore.
-      const q = query(usersRef, where("isLookingForRoommate", "==", true), where("uid", "!=", currentUser.uid));
+      const q = query(
+        usersRef, 
+        where("hostelId", "==", hostelId),
+        where("isLookingForRoommate", "==", true), 
+        where("uid", "!=", currentUser.uid)
+      );
       
       let fetchedUsers: UserProfile[] = [];
       try {
@@ -60,7 +65,8 @@ export default function DashboardPage() {
           fetchedUsers.push({ uid: doc.id, ...doc.data() } as UserProfile);
         });
       } catch (error) {
-        console.error("Error fetching users, likely a missing Firestore index:", error);
+        console.error("Error fetching users. This likely means you need to create a composite index in Firestore.", error);
+        // You might want to show a more user-friendly error message here
       }
       
       // Perform matching
@@ -80,19 +86,21 @@ export default function DashboardPage() {
       
       const matchedUsers = await Promise.all(matchPromises);
       
-      // Combine with mock data if needed
-      const mockUsers = getMockUsers(6);
+      // Combine with mock data if needed to reach a minimum count
       const combinedUsers: UserWithMatchData[] = [...matchedUsers];
-      const existingUids = new Set(matchedUsers.map(u => u.uid));
+      if (combinedUsers.length < 6) {
+        const mockUsers = getMockUsers(6);
+        const existingUids = new Set(matchedUsers.map(u => u.uid));
 
-      for (const mockUser of mockUsers) {
-        if (combinedUsers.length >= 6) break;
-        if (!existingUids.has(mockUser.uid)) {
-          combinedUsers.push({
-             ...mockUser,
-             compatibilityScore: Math.floor(Math.random() * 61) + 40,
-             matchAnalysis: "This is a mock user profile for demonstration.",
-          });
+        for (const mockUser of mockUsers) {
+            if (combinedUsers.length >= 6) break;
+            if (!existingUids.has(mockUser.uid)) {
+              combinedUsers.push({
+                 ...mockUser,
+                 compatibilityScore: Math.floor(Math.random() * 61) + 40,
+                 matchAnalysis: "This is a mock user profile for demonstration.",
+              });
+            }
         }
       }
 

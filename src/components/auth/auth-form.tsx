@@ -31,6 +31,7 @@ export function AuthForm() {
     const [loading, setLoading] = useState(false);
 
     const hostelId = params.hostelId;
+    const requiredDomain = 'students.iiserpune.ac.in';
 
     const handleSuccess = async (currentUser: User) => {
       setLoading(true);
@@ -57,7 +58,11 @@ export function AuthForm() {
         setLoading(true);
         const result = await signInWithGoogle();
         if (result?.user) {
-          await handleSuccess(result.user);
+          if (result.user.email?.endsWith(`@${requiredDomain}`)) {
+            await handleSuccess(result.user);
+          } else {
+             toast({ variant: "destructive", title: "Invalid Email", description: `Please use your @${requiredDomain} email address.` });
+          }
         }
         setLoading(false);
     };
@@ -74,6 +79,14 @@ export function AuthForm() {
 
     const handleSignup = async (e: React.FormEvent) => {
       e.preventDefault();
+      if (!signupEmail.endsWith(`@${requiredDomain}`)) {
+        toast({
+          variant: "destructive",
+          title: "Invalid Email Domain",
+          description: `You must sign up with a @${requiredDomain} email address.`,
+        });
+        return;
+      }
       setLoading(true);
       const result = await signUpWithEmail(signupEmail, signupPassword);
        if (result.user) {
@@ -129,7 +142,7 @@ export function AuthForm() {
             </div>
             <div className="space-y-2">
                 <Label htmlFor="signup-email">Email</Label>
-                <Input id="signup-email" type="email" placeholder="m@example.com" value={signupEmail} onChange={(e) => setSignupEmail(e.target.value)} required />
+                <Input id="signup-email" type="email" placeholder={`yourname@${requiredDomain}`} value={signupEmail} onChange={(e) => setSignupEmail(e.target.value)} required />
             </div>
             <div className="space-y-2">
                 <Label htmlFor="signup-password">Password</Label>
