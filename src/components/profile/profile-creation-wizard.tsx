@@ -123,6 +123,55 @@ const Step_8_About = () => {
     )
 }
 
+const Step_9_IdealRoommate = () => {
+    const { control, setValue } = useFormContext();
+    const [isGenerating, setIsGenerating] = useState(false);
+    const [keywords, setKeywords] = useState('');
+
+    const handleGenerate = async () => {
+        setIsGenerating(true);
+        try {
+            const result = await generateProfileDescription({ aboutMeKeywords: '', idealRoommateKeywords: keywords });
+            setValue('idealRoommate', result.idealRoommateDescription, { shouldValidate: true });
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setIsGenerating(false);
+        }
+    }
+
+    return (
+        <div className="space-y-4">
+            <div className="space-y-2">
+                <Label>Keywords for your ideal roommate</Label>
+                <Input placeholder="e.g. clean, respectful, early bird, studious" value={keywords} onChange={(e) => setKeywords(e.target.value)} />
+                <Button type="button" size="sm" onClick={handleGenerate} disabled={isGenerating}>
+                    <Sparkles className="mr-2 h-4 w-4" />
+                    {isGenerating ? 'Generating...' : 'Generate with AI'}
+                </Button>
+            </div>
+            <FormField
+                control={control}
+                name="idealRoommate"
+                render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Describe Your Ideal Roommate</FormLabel>
+                        <FormControl>
+                            <Textarea
+                                placeholder="What qualities are you looking for in a roommate?"
+                                className="min-h-[120px]"
+                                {...field}
+                            />
+                        </FormControl>
+                        <FormDescription>500 character limit. Current: {field.value?.length || 0}</FormDescription>
+                        <FormMessage />
+                    </FormItem>
+                )}
+            />
+        </div>
+    )
+}
+
 const steps = [
   { id: 1, title: 'Basic Information', component: Step_1 },
   { id: 2, title: 'Daily Routine', component: () => <div>Step 2 Content</div> },
@@ -132,7 +181,7 @@ const steps = [
   { id: 6, title: 'Room Preferences', component: () => <div>Step 6 Content</div> },
   { id: 7, title: 'Previous Roommate', component: () => <div>Step 7 Content</div> },
   { id: 8, title: 'About Yourself', component: Step_8_About },
-  { id: 9, title: 'Ideal Roommate', component: () => <div>Step 9 Content</div> },
+  { id: 9, title: 'Ideal Roommate', component: Step_9_IdealRoommate },
   { id: 10, title: 'Matching Priority', component: () => <div>Step 10 Content</div> },
 ];
 
@@ -144,6 +193,10 @@ export function ProfileCreationWizard() {
   const methods = useForm({
     // resolver: zodResolver(stepSchemas[currentStep]),
     mode: 'onChange',
+    defaultValues: {
+        aboutYourself: '',
+        idealRoommate: '',
+    }
   });
 
   const { handleSubmit, trigger } = methods;
