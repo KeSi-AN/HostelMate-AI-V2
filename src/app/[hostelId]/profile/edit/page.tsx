@@ -56,13 +56,6 @@ export default function EditProfilePage() {
             <p className="text-muted-foreground mb-8">
                 Update your information to keep your matches relevant.
             </p>
-            <Alert className="mb-6">
-                <Terminal className="h-4 w-4" />
-                <AlertTitle>Developer Note</AlertTitle>
-                <AlertDescription>
-                    This form is now pre-filled with your existing data from Firestore. Any changes will overwrite your current profile.
-                </AlertDescription>
-            </Alert>
             <FormProvider {...methods}>
                 <ProfileCreationWizard />
             </FormProvider>

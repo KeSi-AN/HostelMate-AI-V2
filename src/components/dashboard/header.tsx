@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from "next/link";
@@ -82,12 +83,6 @@ export function Header({ hostelName }: HeaderProps) {
               <Link href={`/${hostelId}/profile/edit`}>
                  <Settings className="mr-2 h-4 w-4" />
                  <span>Edit Profile</span>
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href={`/${hostelId}/profile/create`}>
-                 <UserPlus className="mr-2 h-4 w-4" />
-                 <span>Create Profile</span>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
