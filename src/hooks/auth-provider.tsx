@@ -11,7 +11,8 @@ import {
   signInWithEmailAndPassword,
   RecaptchaVerifier,
   signInWithPhoneNumber,
-  ConfirmationResult
+  ConfirmationResult,
+  UserCredential
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { useToast } from './use-toast';
@@ -20,7 +21,7 @@ import { useToast } from './use-toast';
 export interface AuthContextType {
   user: User | null;
   loading: boolean;
-  signInWithGoogle: () => Promise<void>;
+  signInWithGoogle: () => Promise<UserCredential | null>;
   signUpWithEmail: (email:string, password:string) => Promise<any>;
   signInWithEmail: (email:string, password:string) => Promise<any>;
   signInWithPhone: (phoneNumber: string) => Promise<ConfirmationResult | null>;
@@ -58,10 +59,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
     try {
-      await signInWithPopup(auth, provider);
+      return await signInWithPopup(auth, provider);
     } catch (error) {
       console.error("Error signing in with Google: ", error);
       toast({ variant: "destructive", title: "Sign-in Error", description: "Could not sign in with Google. Please try again." });
+      return null;
     }
   };
 

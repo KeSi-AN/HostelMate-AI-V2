@@ -8,7 +8,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from '@/hooks/use-auth';
 import { useRouter, useParams } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
-import type { ConfirmationResult } from 'firebase/auth';
+import type { ConfirmationResult, User } from 'firebase/auth';
+import { db } from '@/lib/firebase';
+import { doc, getDoc } from 'firebase/firestore';
 
 const GoogleIcon = () => (
     <svg className="mr-2 h-4 w-4" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512">
@@ -17,7 +19,7 @@ const GoogleIcon = () => (
   );
 
 export function AuthForm() {
-    const { signInWithGoogle, signUpWithEmail, signInWithEmail, signInWithPhone, verifyOtp } = useAuth();
+    const { user, signInWithGoogle, signUpWithEmail, signInWithEmail, signInWithPhone, verifyOtp } = useAuth();
     const router = useRouter();
     const params = useParams();
     const { toast } = useToast();
@@ -33,16 +35,33 @@ export function AuthForm() {
 
     const hostelId = params.hostelId;
 
-    const handleSuccess = () => {
-      // This will eventually check if a profile exists and redirect accordingly.
-      // For now, it always goes to the create profile page.
-      router.push(`/${hostelId}/profile/create`);
+    const handleSuccess = async (currentUser: User) => {
+      setLoading(true);
+      try {
+        const profileRef = doc(db, 'users', currentUser.uid);
+        const profileSnap = await getDoc(profileRef);
+
+        if (profileSnap.exists()) {
+          router.push(`/${hostelId}/dashboard`);
+        } else {
+          router.push(`/${hostelId}/profile/create`);
+        }
+      } catch (error) {
+        console.error("Error checking profile:", error);
+        toast({ variant: "destructive", title: "Error", description: "Could not verify profile. Please try again." });
+        // Fallback to profile creation on error
+        router.push(`/${hostelId}/profile/create`);
+      } finally {
+        setLoading(false);
+      }
     };
     
     const handleGoogleSignIn = async () => {
         setLoading(true);
-        await signInWithGoogle();
-        handleSuccess();
+        const result = await signInWithGoogle();
+        if (result?.user) {
+          await handleSuccess(result.user);
+        }
         setLoading(false);
     };
 
@@ -50,8 +69,8 @@ export function AuthForm() {
       e.preventDefault();
       setLoading(true);
       const result = await signInWithEmail(loginEmail, loginPassword);
-      if (!result.error) {
-        handleSuccess();
+      if (result.user) {
+        await handleSuccess(result.user);
       }
       setLoading(false);
     };
@@ -60,8 +79,8 @@ export function AuthForm() {
       e.preventDefault();
       setLoading(true);
       const result = await signUpWithEmail(signupEmail, signupPassword);
-      if (!result.error) {
-        handleSuccess();
+       if (result.user) {
+        await handleSuccess(result.user);
       }
       setLoading(false);
     }
@@ -82,8 +101,8 @@ export function AuthForm() {
         setLoading(true);
         if (confirmationResult) {
             const result = await verifyOtp(confirmationResult, otp);
-             if (!result.error) {
-                handleSuccess();
+             if (result.user) {
+                await handleSuccess(result.user);
             }
         }
         setLoading(false);
