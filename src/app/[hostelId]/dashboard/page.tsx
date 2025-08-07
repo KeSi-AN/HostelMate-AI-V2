@@ -30,8 +30,8 @@ export default function DashboardPage() {
 
       try {
         const usersRef = collection(db, "users");
-        // Fetch all users except the current one who are looking for a roommate.
-        const q = query(usersRef, where("uid", "!=", currentUser.uid), where("isLookingForRoommate", "==", true));
+        // Fetch all users except the current one.
+        const q = query(usersRef, where("uid", "!=", currentUser.uid));
         const querySnapshot = await getDocs(q);
         const fetchedUsers: UserProfile[] = [];
         querySnapshot.forEach((doc) => {
