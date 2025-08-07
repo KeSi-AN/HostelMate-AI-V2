@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { DashboardClient } from "@/components/dashboard/dashboard-client";
@@ -70,8 +71,12 @@ export default function DashboardPage() {
       }
       
       // Perform matching
-      const matchPromises = fetchedUsers.map(otherUser => 
-        matchProfiles({ userA: currentUserProfile, userB: otherUser })
+      const matchPromises = fetchedUsers.map(otherUser => {
+        // Convert Firestore Timestamps to plain objects before passing to the server action
+        const plainUserA = JSON.parse(JSON.stringify(currentUserProfile));
+        const plainUserB = JSON.parse(JSON.stringify(otherUser));
+
+        return matchProfiles({ userA: plainUserA, userB: plainUserB })
           .then(matchResult => ({ ...otherUser, ...matchResult }))
           .catch(err => {
             console.error(`Failed to match with ${otherUser.name}:`, err);
@@ -81,8 +86,8 @@ export default function DashboardPage() {
               compatibilityScore: 0,
               matchAnalysis: "Could not calculate match score.",
             };
-          })
-      );
+          });
+      });
       
       const matchedUsers = await Promise.all(matchPromises);
       
