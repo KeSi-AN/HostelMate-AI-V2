@@ -10,6 +10,7 @@ import { Separator } from '../ui/separator';
 import { UserWithMatchData } from '@/app/[hostelId]/dashboard/page';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import { Lightbulb } from 'lucide-react';
+import Link from 'next/link';
 
 type RoommateCardProps = {
   user: UserWithMatchData;
@@ -85,7 +86,11 @@ export function RoommateCard({ user }: RoommateCardProps) {
                         <div>
                             <h4 className="font-semibold mb-2">Contact</h4>
                             <div className="flex gap-2">
-                                <Button size="sm" variant="outline"><MessageSquare className="mr-2 h-4 w-4"/> WhatsApp</Button>
+                                <Button size="sm" variant="outline" asChild>
+                                  <a href={`https://wa.me/${user.whatsapp?.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer">
+                                    <MessageSquare className="mr-2 h-4 w-4"/> WhatsApp
+                                  </a>
+                                </Button>
                                 <Button size="sm" variant="outline" onClick={() => navigator.clipboard.writeText(user.email)}>
                                     <Copy className="mr-2 h-4 w-4"/> Email
                                 </Button>
