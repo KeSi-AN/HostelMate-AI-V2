@@ -56,10 +56,53 @@ export function ProfileCreationWizard() {
 
   const methods = useForm<UserProfile>({
     mode: 'onChange',
-    // You can prefill with existing data here if needed
     defaultValues: {
         isLookingForRoommate: true,
-        // Initialize other fields as empty strings or default values
+        name: '',
+        whatsapp: '',
+        yearOfStudy: undefined,
+        branch: undefined,
+        rollNumber: '',
+        hostelBlock: '',
+        roomNumber: '',
+        dailyRoutine: {
+            wakeUp: undefined,
+            sleep: undefined,
+            classSchedule: undefined,
+            studyHours: undefined,
+        },
+        studyPreferences: {
+            location: undefined,
+            style: undefined,
+            projectWork: undefined,
+        },
+        lifestyle: {
+            cleanliness: undefined,
+            organization: undefined,
+            visitors: undefined,
+            music: undefined,
+            lights: undefined,
+        },
+        socialActivities: {
+            sports: undefined,
+            weekend: undefined,
+            mess: undefined,
+            commonRoom: undefined,
+            clubs: [],
+        },
+        roomPreferences: {
+            floor: undefined,
+            orientation: undefined,
+            nearBathroom: undefined,
+            nearCommon: undefined,
+            corner: undefined,
+        },
+        previousRoommate: {
+            name: '',
+        },
+        aboutYourself: '',
+        idealRoommate: '',
+        matchingPriority: [],
     }
   });
 
@@ -100,9 +143,9 @@ export function ProfileCreationWizard() {
             profileCompleteness: 100, // Or calculate based on fields filled
         };
 
-        await setDoc(doc(db, "users", currentUser.uid), profileData);
+        await setDoc(doc(db, "users", currentUser.uid), profileData, { merge: true });
 
-        toast({ title: "Profile Created!", description: "Your profile has been saved successfully."});
+        toast({ title: "Profile Saved!", description: "Your profile has been saved successfully."});
         router.push(`/${hostelId}/dashboard`);
     } catch (error) {
         console.error("Error creating profile:", error);
