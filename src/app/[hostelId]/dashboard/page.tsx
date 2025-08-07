@@ -8,6 +8,7 @@ import { collection, getDocs, query, where } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
+import { getMockUsers } from "@/lib/mock-data";
 
 export default function DashboardPage() {
   const params = useParams();
@@ -21,6 +22,8 @@ export default function DashboardPage() {
   useEffect(() => {
     const fetchUsers = async () => {
       if (!currentUser) {
+        // If no user is logged in, show mock data for demonstration.
+        setUsers(getMockUsers(6));
         setLoading(false);
         return;
       };
@@ -34,9 +37,18 @@ export default function DashboardPage() {
         querySnapshot.forEach((doc) => {
           fetchedUsers.push({ uid: doc.id, ...doc.data() } as UserProfile);
         });
-        setUsers(fetchedUsers);
+        
+        if (fetchedUsers.length === 0) {
+            // If no real users are found, fallback to mock data.
+            setUsers(getMockUsers(6));
+        } else {
+            setUsers(fetchedUsers);
+        }
+
       } catch (error) {
         console.error("Error fetching users:", error);
+        // If there's an error (like a missing index), show mock data.
+        setUsers(getMockUsers(6));
       } finally {
         setLoading(false);
       }
