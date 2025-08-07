@@ -1,301 +1,92 @@
 'use client'
 
 import { useState } from 'react';
-import { useForm, FormProvider, useFormContext, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
+import { useForm, FormProvider } from 'react-hook-form';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { ArrowLeft, ArrowRight, Sparkles } from 'lucide-react';
-import { generateProfileDescription } from '@/ai/flows/generate-profile-description';
+import { Form } from '@/components/ui/form';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
+
+import { Step1_BasicInfo } from './steps/step1-basic-info';
+import { Step2_DailyRoutine } from './steps/step2-daily-routine';
+import { Step3_StudyPreferences } from './steps/step3-study-preferences';
+import { Step4_Lifestyle } from './steps/step4-lifestyle';
+import { Step5_SocialActivities } from './steps/step5-social-activities';
+import { Step6_RoomPreferences } from './steps/step6-room-preferences';
+import { Step7_PreviousRoommate } from './steps/step7-previous-roommate';
+import { Step8_About } from './steps/step8-about';
+import { Step9_IdealRoommate } from './steps/step9-ideal-roommate';
+import { Step10_MatchingPriority } from './steps/step10-matching-priority';
 
 const totalSteps = 10;
 
-const stepSchemas = [
-  z.object({
-    name: z.string().min(2, "Name is required"),
-    whatsapp: z.string().regex(/^\+91\s?\d{10}$/, "Invalid WhatsApp number"),
-    yearOfStudy: z.string().nonempty("Year of study is required"),
-    branch: z.string().nonempty("Branch is required"),
-    rollNumber: z.string().min(5, "Roll number is required"),
-    currentFloor: z.string().nonempty("Floor is required"),
-    hostelBlock: z.string().min(1, "Hostel block is required"),
-    roomNumber: z.string().min(1, "Room number is required"),
-    currentRoommateName: z.string().min(2, "Roommate name is required"),
-    currentRoommateYear: z.string().nonempty("Roommate year is required"),
-    isLookingForRoommate: z.boolean().refine(val => val, "You must be looking for a change"),
-  }),
-  // Add schemas for other steps as needed for full validation
-];
-
-
-const Step_1 = () => (
-    <div className="space-y-4">
-      <FormField name="name" render={({ field }) => (
-          <FormItem><FormLabel>Full Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-      )} />
-      <FormField name="whatsapp" render={({ field }) => (
-          <FormItem><FormLabel>WhatsApp Number</FormLabel><FormControl><Input {...field} placeholder="+91 XXXXXXXXXX" /></FormControl><FormMessage /></FormItem>
-      )} />
-      {/* Shortened for brevity, other fields follow this pattern */}
-      <FormField name="yearOfStudy" render={({ field }) => (
-        <FormItem><FormLabel>Year of Study</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}>
-          <FormControl><SelectTrigger><SelectValue placeholder="Select year" /></SelectTrigger></FormControl>
-          <SelectContent><SelectItem value="Freshman">Freshman</SelectItem><SelectItem value="Sophomore">Sophomore</SelectItem><SelectItem value="Junior">Junior</SelectItem><SelectItem value="Senior">Senior</SelectItem></SelectContent>
-        </Select><FormMessage /></FormItem>
-      )}/>
-      <FormField name="branch" render={({ field }) => (
-        <FormItem><FormLabel>Branch/Department</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}>
-          <FormControl><SelectTrigger><SelectValue placeholder="Select branch" /></SelectTrigger></FormControl>
-          <SelectContent><SelectItem value="ECS">ECS</SelectItem><SelectItem value="HSS">HSS</SelectItem><SelectItem value="Mathematics">Mathematics</SelectItem></SelectContent>
-        </Select><FormMessage /></FormItem>
-      )}/>
-       <FormField name="rollNumber" render={({ field }) => (
-          <FormItem><FormLabel>Roll Number</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-      )} />
-       <FormField name="isLookingForRoommate" render={({ field }) => (
-          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-              <div className="space-y-0.5"><FormLabel>Looking for roommate change?</FormLabel><FormDescription>Must be ON to find matches.</FormDescription></div>
-              <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
-          </FormItem>
-       )} />
-    </div>
-);
-
-const Step_2_DailyRoutine = () => {
-    const { control } = useFormContext();
-    const routineOptions = {
-        wakeUp: ['5-6 AM', '6-7 AM', '7-8 AM', 'After 8 AM'],
-        sleep: ['Before 10 PM', '10-11 PM', '11-12 AM', 'After 12 AM'],
-        classSchedule: ['Morning', 'Afternoon', 'Evening', 'Flexible'],
-        studyHours: ['Early Morning', 'Afternoon', 'Late Night', 'Flexible']
-    };
-
-    return (
-        <div className="space-y-8">
-            <FormField
-                control={control}
-                name="dailyRoutine.wakeUp"
-                render={({ field }) => (
-                    <FormItem className="space-y-3">
-                        <FormLabel className="font-semibold">Wake-up Time</FormLabel>
-                        <FormControl>
-                            <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-col space-y-1">
-                                {routineOptions.wakeUp.map(option => (
-                                    <FormItem key={option} className="flex items-center space-x-3 space-y-0">
-                                        <FormControl><RadioGroupItem value={option} /></FormControl>
-                                        <FormLabel className="font-normal">{option}</FormLabel>
-                                    </FormItem>
-                                ))}
-                            </RadioGroup>
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
-                )}
-            />
-            <FormField
-                control={control}
-                name="dailyRoutine.sleep"
-                render={({ field }) => (
-                    <FormItem className="space-y-3">
-                        <FormLabel className="font-semibold">Sleep Time</FormLabel>
-                        <FormControl>
-                            <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-col space-y-1">
-                                {routineOptions.sleep.map(option => (
-                                    <FormItem key={option} className="flex items-center space-x-3 space-y-0">
-                                        <FormControl><RadioGroupItem value={option} /></FormControl>
-                                        <FormLabel className="font-normal">{option}</FormLabel>
-                                    </FormItem>
-                                ))}
-                            </RadioGroup>
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
-                )}
-            />
-            <FormField
-                control={control}
-                name="dailyRoutine.classSchedule"
-                render={({ field }) => (
-                    <FormItem className="space-y-3">
-                        <FormLabel className="font-semibold">Class Schedule</FormLabel>
-                        <FormControl>
-                            <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-col space-y-1">
-                                {routineOptions.classSchedule.map(option => (
-                                    <FormItem key={option} className="flex items-center space-x-3 space-y-0">
-                                        <FormControl><RadioGroupItem value={option} /></FormControl>
-                                        <FormLabel className="font-normal">{option}</FormLabel>
-                                    </FormItem>
-                                ))}
-                            </RadioGroup>
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
-                )}
-            />
-            <FormField
-                control={control}
-                name="dailyRoutine.studyHours"
-                render={({ field }) => (
-                    <FormItem className="space-y-3">
-                        <FormLabel className="font-semibold">Study Hours</FormLabel>
-                        <FormControl>
-                            <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-col space-y-1">
-                                {routineOptions.studyHours.map(option => (
-                                    <FormItem key={option} className="flex items-center space-x-3 space-y-0">
-                                        <FormControl><RadioGroupItem value={option} /></FormControl>
-                                        <FormLabel className="font-normal">{option}</FormLabel>
-                                    </FormItem>
-                                ))}
-                            </RadioGroup>
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
-                )}
-            />
-        </div>
-    )
-}
-
-const Step_8_About = () => {
-    const { control, setValue } = useFormContext();
-    const [isGenerating, setIsGenerating] = useState(false);
-    const [keywords, setKeywords] = useState('');
-
-    const handleGenerate = async () => {
-        setIsGenerating(true);
-        try {
-            const result = await generateProfileDescription({ aboutMeKeywords: keywords, idealRoommateKeywords: '' });
-            setValue('aboutYourself', result.aboutMeDescription, { shouldValidate: true });
-        } catch (e) {
-            console.error(e);
-        } finally {
-            setIsGenerating(false);
-        }
-    }
-
-    return (
-        <div className="space-y-4">
-            <div className="space-y-2">
-                <Label>Keywords about you</Label>
-                <Input placeholder="e.g. night owl, coding, gaming, organized, fitness" value={keywords} onChange={(e) => setKeywords(e.target.value)} />
-                <Button type="button" size="sm" onClick={handleGenerate} disabled={isGenerating}>
-                    <Sparkles className="mr-2 h-4 w-4" />
-                    {isGenerating ? 'Generating...' : 'Generate with AI'}
-                </Button>
-            </div>
-            <FormField
-                control={control}
-                name="aboutYourself"
-                render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Tell Us About Yourself</FormLabel>
-                        <FormControl>
-                            <Textarea
-                                placeholder="Describe your personality, interests, hobbies, and lifestyle..."
-                                className="min-h-[120px]"
-                                {...field}
-                            />
-                        </FormControl>
-                        <FormDescription>500 character limit. Current: {field.value?.length || 0}</FormDescription>
-                        <FormMessage />
-                    </FormItem>
-                )}
-            />
-        </div>
-    )
-}
-
-const Step_9_IdealRoommate = () => {
-    const { control, setValue } = useFormContext();
-    const [isGenerating, setIsGenerating] = useState(false);
-    const [keywords, setKeywords] = useState('');
-
-    const handleGenerate = async () => {
-        setIsGenerating(true);
-        try {
-            const result = await generateProfileDescription({ aboutMeKeywords: '', idealRoommateKeywords: keywords });
-            setValue('idealRoommate', result.idealRoommateDescription, { shouldValidate: true });
-        } catch (e) {
-            console.error(e);
-        } finally {
-            setIsGenerating(false);
-        }
-    }
-
-    return (
-        <div className="space-y-4">
-            <div className="space-y-2">
-                <Label>Keywords for your ideal roommate</Label>
-                <Input placeholder="e.g. clean, respectful, early bird, studious" value={keywords} onChange={(e) => setKeywords(e.target.value)} />
-                <Button type="button" size="sm" onClick={handleGenerate} disabled={isGenerating}>
-                    <Sparkles className="mr-2 h-4 w-4" />
-                    {isGenerating ? 'Generating...' : 'Generate with AI'}
-                </Button>
-            </div>
-            <FormField
-                control={control}
-                name="idealRoommate"
-                render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Describe Your Ideal Roommate</FormLabel>
-                        <FormControl>
-                            <Textarea
-                                placeholder="What qualities are you looking for in a roommate?"
-                                className="min-h-[120px]"
-                                {...field}
-                            />
-                        </FormControl>
-                        <FormDescription>500 character limit. Current: {field.value?.length || 0}</FormDescription>
-                        <FormMessage />
-                    </FormItem>
-                )}
-            />
-        </div>
-    )
-}
-
 const steps = [
-  { id: 1, title: 'Basic Information', component: Step_1 },
-  { id: 2, title: 'Daily Routine', component: Step_2_DailyRoutine },
-  { id: 3, title: 'Study Preferences', component: () => <div>Step 3 Content</div> },
-  { id: 4, title: 'Lifestyle', component: () => <div>Step 4 Content</div> },
-  { id: 5, title: 'Social Activities', component: () => <div>Step 5 Content</div> },
-  { id: 6, title: 'Room Preferences', component: () => <div>Step 6 Content</div> },
-  { id: 7, title: 'Previous Roommate', component: () => <div>Step 7 Content</div> },
-  { id: 8, title: 'About Yourself', component: Step_8_About },
-  { id: 9, title: 'Ideal Roommate', component: Step_9_IdealRoommate },
-  { id: 10, title: 'Matching Priority', component: () => <div>Step 10 Content</div> },
+  { id: 1, title: 'Basic Information', component: Step1_BasicInfo },
+  { id: 2, title: 'Daily Routine', component: Step2_DailyRoutine },
+  { id: 3, title: 'Study Preferences', component: Step3_StudyPreferences },
+  { id: 4, title: 'Lifestyle', component: Step4_Lifestyle },
+  { id: 5, title: 'Social Activities', component: Step5_SocialActivities },
+  { id: 6, title: 'Room Preferences', component: Step6_RoomPreferences },
+  { id: 7, title: 'Previous Roommate', component: Step7_PreviousRoommate },
+  { id: 8, title: 'About Yourself', component: Step8_About },
+  { id: 9, title: 'Ideal Roommate', component: Step9_IdealRoommate },
+  { id: 10, title: 'Matching Priority', component: Step10_MatchingPriority },
 ];
 
 export function ProfileCreationWizard() {
   const [currentStep, setCurrentStep] = useState(0);
-  const [formData, setFormData] = useState({});
   const CurrentStepComponent = steps[currentStep].component;
 
   const methods = useForm({
-    // resolver: zodResolver(stepSchemas[currentStep]),
     mode: 'onChange',
     defaultValues: {
-        aboutYourself: '',
-        idealRoommate: '',
+        name: '',
+        whatsapp: '',
+        yearOfStudy: '',
+        branch: '',
+        rollNumber: '',
+        isLookingForRoommate: true,
         dailyRoutine: {
             wakeUp: '',
             sleep: '',
             classSchedule: '',
             studyHours: '',
-        }
+        },
+        studyPreferences: {
+            location: '',
+            style: '',
+            projectWork: '',
+        },
+        lifestyle: {
+            cleanliness: '',
+            organization: '',
+            visitors: '',
+            music: '',
+            lights: ''
+        },
+        socialActivities: {
+            sports: '',
+            clubs: [],
+            weekend: '',
+            mess: '',
+            commonRoom: ''
+        },
+        roomPreferences: {
+            floor: '',
+            orientation: '',
+            nearBathroom: '',
+            nearCommon: '',
+            corner: ''
+        },
+        previousRoommate: {
+            name: '',
+        },
+        aboutYourself: '',
+        idealRoommate: '',
+        matchingPriority: [],
     }
   });
 
@@ -303,7 +94,7 @@ export function ProfileCreationWizard() {
 
   const handleNext = async () => {
     // const isValid = await trigger();
-    const isValid = true; // Bypassing validation for demo
+    const isValid = true; // Bypassing validation for now
     if (isValid) {
       if (currentStep < totalSteps - 1) {
         setCurrentStep(prev => prev + 1);
@@ -324,8 +115,8 @@ export function ProfileCreationWizard() {
 
   return (
     <FormProvider {...methods}>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="space-y-8">
+      <Form {...methods}>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
             <div>
               <p className="text-sm font-medium text-primary">Step {currentStep + 1} of {totalSteps}</p>
               <Progress value={((currentStep + 1) / totalSteps) * 100} className="mt-2" />
@@ -365,8 +156,8 @@ export function ProfileCreationWizard() {
                     <Button type="submit">Finish & Submit Profile</Button>
                 )}
             </div>
-        </div>
-      </form>
+        </form>
+      </Form>
     </FormProvider>
   );
 }
