@@ -1,10 +1,13 @@
 'use client';
 
+import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Separator } from "@/components/ui/separator";
+import { useAuth } from '@/hooks/use-auth';
+import { useRouter, useParams } from 'next/navigation';
+import { useToast } from '@/hooks/use-toast';
 
 const GoogleIcon = () => (
     <svg className="mr-2 h-4 w-4" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512">
@@ -13,6 +16,52 @@ const GoogleIcon = () => (
   );
 
 export function AuthForm() {
+    const { signInWithGoogle, signUpWithEmail, signInWithEmail } = useAuth();
+    const router = useRouter();
+    const params = useParams();
+    const { toast } = useToast();
+    
+    const [loginEmail, setLoginEmail] = useState('');
+    const [loginPassword, setLoginPassword] = useState('');
+    const [signupEmail, setSignupEmail] = useState('');
+    const [signupPassword, setSignupPassword] = useState('');
+    const [loading, setLoading] = useState(false);
+
+    const hostelId = params.hostelId;
+
+    const handleSuccess = () => {
+      // Check if user has a profile, if not, redirect to create, otherwise to dashboard.
+      // For now, we'll just redirect to the create profile page.
+      router.push(`/${hostelId}/profile/create`);
+    };
+    
+    const handleGoogleSignIn = async () => {
+        setLoading(true);
+        await signInWithGoogle();
+        handleSuccess();
+        setLoading(false);
+    };
+
+    const handleLogin = async (e: React.FormEvent) => {
+      e.preventDefault();
+      setLoading(true);
+      const result = await signInWithEmail(loginEmail, loginPassword);
+      if (!result.error) {
+        handleSuccess();
+      }
+      setLoading(false);
+    };
+
+    const handleSignup = async (e: React.FormEvent) => {
+      e.preventDefault();
+      setLoading(true);
+      const result = await signUpWithEmail(signupEmail, signupPassword);
+      if (!result.error) {
+        handleSuccess();
+      }
+      setLoading(false);
+    }
+
   return (
     <Tabs defaultValue="login" className="w-full">
       <TabsList className="grid w-full grid-cols-2">
@@ -20,10 +69,10 @@ export function AuthForm() {
         <TabsTrigger value="signup">Sign Up</TabsTrigger>
       </TabsList>
       <TabsContent value="login">
-        <div className="space-y-4 py-4">
-            <Button variant="outline" className="w-full">
+        <form onSubmit={handleLogin} className="space-y-4 py-4">
+            <Button variant="outline" className="w-full" type="button" onClick={handleGoogleSignIn} disabled={loading}>
                 <GoogleIcon />
-                Sign in with Google
+                {loading ? 'Signing in...' : 'Sign in with Google'}
             </Button>
             <div className="relative">
                 <div className="absolute inset-0 flex items-center">
@@ -35,20 +84,20 @@ export function AuthForm() {
             </div>
             <div className="space-y-2">
                 <Label htmlFor="login-email">Email</Label>
-                <Input id="login-email" type="email" placeholder="m@example.com" />
+                <Input id="login-email" type="email" placeholder="m@example.com" value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} required />
             </div>
             <div className="space-y-2">
                 <Label htmlFor="login-password">Password</Label>
-                <Input id="login-password" type="password" />
+                <Input id="login-password" type="password" value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} required />
             </div>
-            <Button className="w-full">Login</Button>
-        </div>
+            <Button className="w-full" type="submit" disabled={loading}>{loading ? 'Logging in...' : 'Login'}</Button>
+        </form>
       </TabsContent>
       <TabsContent value="signup">
-        <div className="space-y-4 py-4">
-            <Button variant="outline" className="w-full">
+        <form onSubmit={handleSignup} className="space-y-4 py-4">
+            <Button variant="outline" className="w-full" type="button" onClick={handleGoogleSignIn} disabled={loading}>
                 <GoogleIcon />
-                Sign up with Google
+                {loading ? 'Signing up...' : 'Sign up with Google'}
             </Button>
             <div className="relative">
                 <div className="absolute inset-0 flex items-center">
@@ -60,14 +109,14 @@ export function AuthForm() {
             </div>
             <div className="space-y-2">
                 <Label htmlFor="signup-email">Email</Label>
-                <Input id="signup-email" type="email" placeholder="m@example.com" />
+                <Input id="signup-email" type="email" placeholder="m@example.com" value={signupEmail} onChange={(e) => setSignupEmail(e.target.value)} required />
             </div>
             <div className="space-y-2">
                 <Label htmlFor="signup-password">Password</Label>
-                <Input id="signup-password" type="password" />
+                <Input id="signup-password" type="password" value={signupPassword} onChange={(e) => setSignupPassword(e.target.value)} required />
             </div>
-            <Button className="w-full">Sign Up</Button>
-        </div>
+            <Button className="w-full" type="submit" disabled={loading}>{loading ? 'Signing up...' : 'Sign Up'}</Button>
+        </form>
       </TabsContent>
     </Tabs>
   );

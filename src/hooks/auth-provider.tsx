@@ -1,0 +1,84 @@
+'use client';
+
+import React, { createContext, useState, useEffect, ReactNode } from 'react';
+import { onAuthStateChanged, User, GoogleAuthProvider, signInWithPopup, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '@/lib/firebase';
+import { useToast } from './use-toast';
+
+export interface AuthContextType {
+  user: User | null;
+  loading: boolean;
+  signInWithGoogle: () => Promise<void>;
+  signUpWithEmail: (email:string, password:string) => Promise<any>;
+  signInWithEmail: (email:string, password:string) => Promise<any>;
+  logout: () => Promise<void>;
+}
+
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+      setLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const signInWithGoogle = async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+      await signInWithPopup(auth, provider);
+    } catch (error) {
+      console.error("Error signing in with Google: ", error);
+      toast({ variant: "destructive", title: "Sign-in Error", description: "Could not sign in with Google. Please try again." });
+    }
+  };
+
+  const signUpWithEmail = async (email: string, password: string) => {
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      return userCredential;
+    } catch (error: any) {
+      console.error("Error signing up: ", error);
+      toast({ variant: "destructive", title: "Sign-up Error", description: error.message });
+      return { error };
+    }
+  };
+
+  const signInWithEmail = async (email: string, password: string) => {
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      return userCredential;
+    } catch (error: any) {
+      console.error("Error signing in: ", error);
+      toast({ variant: "destructive", title: "Sign-in Error", description: error.message });
+      return { error };
+    }
+  };
+
+  const logout = async () => {
+    try {
+      await signOut(auth);
+    } catch (error) {
+        console.error("Error signing out: ", error);
+        toast({ variant: "destructive", title: "Logout Error", description: "Could not log out. Please try again." });
+    }
+  };
+
+
+  const value = {
+    user,
+    loading,
+    signInWithGoogle,
+    signUpWithEmail,
+    signInWithEmail,
+    logout
+  };
+
+  return <AuthContext.Provider value={value}>{!loading && children}</AuthContext.Provider>;
+}
