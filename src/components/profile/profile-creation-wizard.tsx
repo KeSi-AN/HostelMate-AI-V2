@@ -3,7 +3,7 @@
 'use client'
 
 import { useState } from 'react';
-import { useForm, FormProvider } from 'react-hook-form';
+import { useFormContext } from 'react-hook-form';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter, useParams } from 'next/navigation';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
@@ -55,58 +55,7 @@ export function ProfileCreationWizard() {
   const { toast } = useToast();
   const hostelId = params.hostelId as string;
 
-  const methods = useForm<UserProfile>({
-    mode: 'onChange',
-    defaultValues: {
-        isLookingForRoommate: true,
-        name: '',
-        whatsapp: '',
-        yearOfStudy: null,
-        branch: null,
-        rollNumber: '',
-        hostelBlock: '',
-        roomNumber: '',
-        dailyRoutine: {
-            wakeUp: null,
-            sleep: null,
-            classSchedule: null,
-            studyHours: null,
-        },
-        studyPreferences: {
-            location: null,
-            style: null,
-            projectWork: null,
-        },
-        lifestyle: {
-            cleanliness: null,
-            organization: null,
-            visitors: null,
-            music: null,
-            lights: null,
-        },
-        socialActivities: {
-            sports: null,
-            weekend: null,
-            mess: null,
-            commonRoom: null,
-            clubs: [],
-        },
-        roomPreferences: {
-            floor: null,
-            orientation: null,
-            nearBathroom: null,
-            nearCommon: null,
-            corner: null,
-        },
-        previousRoommate: {
-            name: '',
-        },
-        aboutYourself: '',
-        idealRoommate: '',
-        matchingPriority: [],
-    }
-  });
-
+  const methods = useFormContext<UserProfile>();
   const { handleSubmit, trigger } = methods;
 
   const handleNext = async () => {
@@ -138,7 +87,8 @@ export function ProfileCreationWizard() {
             uid: currentUser.uid,
             email: currentUser.email,
             hostelId: hostelId,
-            createdAt: serverTimestamp(),
+            // Only set createdAt on initial creation
+            ...(!data.createdAt && { createdAt: serverTimestamp() }),
             lastUpdated: serverTimestamp(),
             lastActive: serverTimestamp(),
             profileCompleteness: 100, // Or calculate based on fields filled
@@ -157,7 +107,6 @@ export function ProfileCreationWizard() {
   };
 
   return (
-    <FormProvider {...methods}>
       <Form {...methods}>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
             <div>
@@ -203,6 +152,5 @@ export function ProfileCreationWizard() {
             </div>
         </form>
       </Form>
-    </FormProvider>
   );
 }
