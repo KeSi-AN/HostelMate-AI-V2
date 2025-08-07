@@ -1,3 +1,5 @@
+'use client';
+
 import Link from "next/link";
 import {
   Bell,
@@ -83,7 +85,7 @@ export function Header({ hostelName }: HeaderProps) {
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link href="/hostel1_boys/profile/create">
+              <Link href={`/${hostelId}/profile/create`}>
                  <UserPlus className="mr-2 h-4 w-4" />
                  <span>Create Profile</span>
               </Link>
