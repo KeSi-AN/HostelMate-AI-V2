@@ -1,7 +1,8 @@
+
 'use client';
-import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { FilterSidebar } from './filter-sidebar';
+import { useState, useEffect, useMemo } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { FilterSidebar, FilterState } from './filter-sidebar';
 import { RoommateCard } from './roommate-card';
 import type { UserProfile } from '@/lib/types';
 import { BarChart, Users, Eye } from 'lucide-react';
@@ -14,6 +15,72 @@ import { useIsMobile } from '@/hooks/use-mobile';
 export function DashboardClient({ users, hostelName }: { users: UserProfile[], hostelName: string }) {
   const [filteredUsers, setFilteredUsers] = useState(users);
   const isMobile = useIsMobile();
+  const [filters, setFilters] = useState<FilterState>({
+    search: '',
+    years: [],
+    branches: [],
+    matchPercentage: 50,
+    sortBy: 'match-desc',
+  });
+
+  const processedUsers = useMemo(() => {
+    return users.map(user => ({
+      ...user,
+      // Add a mock match score for sorting and filtering
+      matchScore: Math.floor(Math.random() * 61) + 40,
+    }));
+  }, [users]);
+
+
+  useEffect(() => {
+    let newFilteredUsers = [...processedUsers];
+
+    // Apply search filter
+    if (filters.search) {
+      newFilteredUsers = newFilteredUsers.filter(user =>
+        user.name.toLowerCase().includes(filters.search.toLowerCase())
+      );
+    }
+
+    // Apply year filter
+    if (filters.years.length > 0) {
+      newFilteredUsers = newFilteredUsers.filter(user =>
+        filters.years.includes(user.yearOfStudy || '')
+      );
+    }
+
+    // Apply branch filter
+    if (filters.branches.length > 0) {
+      newFilteredUsers = newFilteredUsers.filter(user =>
+        filters.branches.includes(user.branch || '')
+      );
+    }
+    
+    // Apply match percentage filter
+    newFilteredUsers = newFilteredUsers.filter(user => user.matchScore >= filters.matchPercentage);
+
+    // Apply sorting
+    switch (filters.sortBy) {
+        case 'match-desc':
+            newFilteredUsers.sort((a, b) => b.matchScore - a.matchScore);
+            break;
+        case 'newest':
+            newFilteredUsers.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+            break;
+        case 'same-year':
+            // This would be more effective if we knew the current user's year.
+            // For now, it will just group them by year.
+            newFilteredUsers.sort((a, b) => (a.yearOfStudy || '').localeCompare(b.yearOfStudy || ''));
+            break;
+        case 'same-branch':
+            newFilteredUsers.sort((a, b) => (a.branch || '').localeCompare(b.branch || ''));
+            break;
+    }
+
+
+    setFilteredUsers(newFilteredUsers);
+  }, [filters, processedUsers]);
+  
 
   return (
     <>
@@ -24,7 +91,7 @@ export function DashboardClient({ users, hostelName }: { users: UserProfile[], h
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">23</div>
+            <div className="text-2xl font-bold">{users.length}</div>
             <p className="text-xs text-muted-foreground">Looking for a roommate</p>
           </CardContent>
         </Card>
@@ -52,12 +119,12 @@ export function DashboardClient({ users, hostelName }: { users: UserProfile[], h
 
       <div className="grid gap-4 md:grid-cols-[240px_1fr] lg:grid-cols-[280px_1fr]">
         <div className="hidden md:flex">
-          <FilterSidebar />
+          <FilterSidebar onFilterChange={setFilters} />
         </div>
 
         <div className="flex flex-col">
           <div className="flex items-center justify-between md:hidden mb-4">
-            <h2 className="text-lg font-semibold">Matches</h2>
+            <h2 className="text-lg font-semibold">Matches ({filteredUsers.length})</h2>
             <Sheet>
               <SheetTrigger asChild>
                 <Button variant="outline" size="icon">
@@ -65,13 +132,13 @@ export function DashboardClient({ users, hostelName }: { users: UserProfile[], h
                 </Button>
               </SheetTrigger>
               <SheetContent side="left" className="w-full max-w-sm">
-                <FilterSidebar />
+                <FilterSidebar onFilterChange={setFilters} />
               </SheetContent>
             </Sheet>
           </div>
           <div className="grid gap-4 md:gap-6 lg:grid-cols-2 xl:grid-cols-3">
             {filteredUsers.map((user) => (
-              <RoommateCard key={user.uid} user={user} />
+              <RoommateCard key={user.uid} user={{...user, matchScore: user.matchScore}} />
             ))}
           </div>
         </div>

@@ -1,3 +1,4 @@
+
 'use client';
 import type { UserProfile } from '@/lib/types';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -9,7 +10,7 @@ import Image from 'next/image';
 import { Separator } from '../ui/separator';
 
 type RoommateCardProps = {
-  user: UserProfile;
+  user: UserProfile & { matchScore?: number };
 };
 
 function MatchPercentage({ score }: { score: number }) {
@@ -29,7 +30,7 @@ function MatchPercentage({ score }: { score: number }) {
 }
 
 export function RoommateCard({ user }: RoommateCardProps) {
-  const matchScore = Math.floor(Math.random() * 61) + 40; // Mock score
+  const matchScore = user.matchScore || Math.floor(Math.random() * 61) + 40;
 
   return (
     <Card className="overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300">
