@@ -9,9 +9,6 @@ import {
   signOut, 
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword,
-  RecaptchaVerifier,
-  signInWithPhoneNumber,
-  ConfirmationResult,
   UserCredential
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
@@ -24,24 +21,10 @@ export interface AuthContextType {
   signInWithGoogle: () => Promise<UserCredential | null>;
   signUpWithEmail: (email:string, password:string) => Promise<any>;
   signInWithEmail: (email:string, password:string) => Promise<any>;
-  signInWithPhone: (phoneNumber: string) => Promise<ConfirmationResult | null>;
-  verifyOtp: (confirmationResult: ConfirmationResult, otp: string) => Promise<any>;
   logout: () => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-// Generate Recaptcha
-const generateRecaptcha = () => {
-  if (typeof window !== 'undefined' && !window.recaptchaVerifier) {
-    window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-      'size': 'invisible',
-      'callback': (response: any) => {
-        // reCAPTCHA solved, allow signInWithPhoneNumber.
-      }
-    });
-  }
-}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -89,37 +72,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const signInWithPhone = async (phoneNumber: string): Promise<ConfirmationResult | null> => {
-    try {
-      generateRecaptcha();
-      const appVerifier = window.recaptchaVerifier;
-      const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
-      return confirmationResult;
-    } catch (error: any) {
-      console.error("Error sending OTP: ", error);
-      toast({ variant: "destructive", title: "SMS Error", description: error.message });
-      // Reset reCAPTCHA
-       if(window.recaptchaVerifier) {
-        window.recaptchaVerifier.render().then(function(widgetId) {
-          // @ts-ignore
-          grecaptcha.reset(widgetId);
-        });
-      }
-      return null;
-    }
-  };
-
-  const verifyOtp = async (confirmationResult: ConfirmationResult, otp: string) => {
-    try {
-      const result = await confirmationResult.confirm(otp);
-      return result;
-    } catch (error: any) {
-       console.error("Error verifying OTP: ", error);
-       toast({ variant: "destructive", title: "OTP Error", description: error.message });
-       return { error };
-    }
-  }
-
   const logout = async () => {
     try {
       await signOut(auth);
@@ -136,17 +88,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     signInWithGoogle,
     signUpWithEmail,
     signInWithEmail,
-    signInWithPhone,
-    verifyOtp,
     logout
   };
 
   return <AuthContext.Provider value={value}>{!loading && children}</AuthContext.Provider>;
-}
-
-// Extend the Window interface
-declare global {
-  interface Window {
-    recaptchaVerifier: RecaptchaVerifier;
-  }
 }

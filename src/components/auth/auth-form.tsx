@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from '@/hooks/use-auth';
 import { useRouter, useParams } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
-import type { ConfirmationResult, User } from 'firebase/auth';
+import type { User } from 'firebase/auth';
 import { db } from '@/lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 
@@ -19,7 +19,7 @@ const GoogleIcon = () => (
   );
 
 export function AuthForm() {
-    const { user, signInWithGoogle, signUpWithEmail, signInWithEmail, signInWithPhone, verifyOtp } = useAuth();
+    const { user, signInWithGoogle, signUpWithEmail, signInWithEmail } = useAuth();
     const router = useRouter();
     const params = useParams();
     const { toast } = useToast();
@@ -28,9 +28,6 @@ export function AuthForm() {
     const [loginPassword, setLoginPassword] = useState('');
     const [signupEmail, setSignupEmail] = useState('');
     const [signupPassword, setSignupPassword] = useState('');
-    const [phone, setPhone] = useState('');
-    const [otp, setOtp] = useState('');
-    const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
     const [loading, setLoading] = useState(false);
 
     const hostelId = params.hostelId;
@@ -85,35 +82,11 @@ export function AuthForm() {
       setLoading(false);
     }
 
-    const handlePhoneSignIn = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setLoading(true);
-        const result = await signInWithPhone(phone);
-        if (result) {
-            setConfirmationResult(result);
-            toast({ title: "OTP Sent", description: "Please check your phone for the verification code." });
-        }
-        setLoading(false);
-    }
-
-    const handleVerifyOtp = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setLoading(true);
-        if (confirmationResult) {
-            const result = await verifyOtp(confirmationResult, otp);
-             if (result.user) {
-                await handleSuccess(result.user);
-            }
-        }
-        setLoading(false);
-    }
-
   return (
     <Tabs defaultValue="login" className="w-full">
-      <TabsList className="grid w-full grid-cols-3">
+      <TabsList className="grid w-full grid-cols-2">
         <TabsTrigger value="login">Login</TabsTrigger>
         <TabsTrigger value="signup">Sign Up</TabsTrigger>
-        <TabsTrigger value="phone">Phone</TabsTrigger>
       </TabsList>
       <TabsContent value="login">
         <form onSubmit={handleLogin} className="space-y-4 py-4">
@@ -164,26 +137,6 @@ export function AuthForm() {
             </div>
             <Button className="w-full" type="submit" disabled={loading}>{loading ? 'Signing up...' : 'Sign Up'}</Button>
         </form>
-      </TabsContent>
-      <TabsContent value="phone">
-        {!confirmationResult ? (
-            <form onSubmit={handlePhoneSignIn} className="space-y-4 py-4">
-                 <div id="recaptcha-container"></div>
-                 <div className="space-y-2">
-                    <Label htmlFor="phone">Phone Number</Label>
-                    <Input id="phone" type="tel" placeholder="+91 XXXXXXXXXX" value={phone} onChange={(e) => setPhone(e.target.value)} required />
-                </div>
-                <Button className="w-full" type="submit" disabled={loading}>{loading ? 'Sending OTP...' : 'Send OTP'}</Button>
-            </form>
-        ) : (
-            <form onSubmit={handleVerifyOtp} className="space-y-4 py-4">
-                 <div className="space-y-2">
-                    <Label htmlFor="otp">Verification Code</Label>
-                    <Input id="otp" type="text" placeholder="Enter OTP" value={otp} onChange={(e) => setOtp(e.target.value)} required />
-                </div>
-                <Button className="w-full" type="submit" disabled={loading}>{loading ? 'Verifying...' : 'Verify OTP'}</Button>
-            </form>
-        )}
       </TabsContent>
     </Tabs>
   );
