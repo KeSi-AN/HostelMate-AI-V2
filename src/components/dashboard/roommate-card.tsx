@@ -4,13 +4,10 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Copy, MessageSquare, UserCheck, UserX } from 'lucide-react';
+import { Copy, MessageSquare, UserCheck, UserX, CheckCircle2, AlertTriangle } from 'lucide-react';
 import Image from 'next/image';
 import { Separator } from '../ui/separator';
 import { UserWithMatchData } from '@/app/[hostelId]/dashboard/page';
-import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
-import { Lightbulb } from 'lucide-react';
-import Link from 'next/link';
 
 type RoommateCardProps = {
   user: UserWithMatchData;
@@ -91,7 +88,7 @@ export function RoommateCard({ user }: RoommateCardProps) {
                                     <MessageSquare className="mr-2 h-4 w-4"/> WhatsApp
                                   </a>
                                 </Button>
-                                <Button size="sm" variant="outline" onClick={() => navigator.clipboard.writeText(user.email)}>
+                                <Button size="sm" variant="outline" onClick={() => navigator.clipboard.writeText(user.email || '')}>
                                     <Copy className="mr-2 h-4 w-4"/> Email
                                 </Button>
                             </div>
@@ -107,17 +104,31 @@ export function RoommateCard({ user }: RoommateCardProps) {
                             <p className="text-sm text-muted-foreground italic">"{user.idealRoommate}"</p>
                         </div>
 
-                         <div className="space-y-2">
-                            <Alert variant="default" className="mt-4">
-                                <Lightbulb className="h-4 w-4" />
-                                <AlertTitle className="font-semibold">AI Compatibility Analysis</AlertTitle>
-                                <AlertDescription>
-                                    <div 
-                                        className="text-sm whitespace-pre-wrap text-muted-foreground prose prose-sm" 
-                                        dangerouslySetInnerHTML={{ __html: user.matchAnalysis?.replace(/\*/g, '') || ''}}
-                                    />
-                                </AlertDescription>
-                            </Alert>
+                         <div className="space-y-4">
+                            <h4 className="font-semibold">AI Compatibility Analysis</h4>
+                             <p className="text-sm text-muted-foreground">{user.matchAnalysis}</p>
+                            
+                            {user.aiStrengths && user.aiStrengths.length > 0 && (
+                                <div className="space-y-2">
+                                    {user.aiStrengths.map((strength, index) => (
+                                        <div key={`strength-${index}`} className="flex items-start gap-2 text-sm">
+                                            <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                                            <span>{strength}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                            
+                            {user.aiConflicts && user.aiConflicts.length > 0 && (
+                                <div className="space-y-2">
+                                    {user.aiConflicts.map((conflict, index) => (
+                                        <div key={`conflict-${index}`} className="flex items-start gap-2 text-sm">
+                                            <AlertTriangle className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />
+                                            <span>{conflict}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     </div>
                 </AccordionContent>

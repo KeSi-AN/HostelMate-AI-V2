@@ -36,7 +36,7 @@ const UserProfileSchema = z.object({
     }),
     aboutYourself: z.string(),
     idealRoommate: z.string(),
-    matchingPriority: z.array(z.string()).default([]),
+    matchingPriority: z.array(z.string()).optional().default([]),
 });
 
 // Zod schema for the flow's input
@@ -54,6 +54,8 @@ const MatchProfilesOutputSchema = z.object({
     semanticScore: z.number().describe('The score from AI-powered semantic analysis, out of 50.'),
     strengths: z.array(z.string()).describe('List of categories where users are highly compatible.'),
     conflicts: z.array(z.string()).describe('List of categories where users may have conflicts.'),
+    aiStrengths: z.array(z.string()).describe("A list of positive compatibility points based on their text descriptions."),
+    aiConflicts: z.array(z.string()).describe("A list of potential conflicts or discussion points based on their text descriptions."),
 });
 export type MatchProfilesOutput = z.infer<typeof MatchProfilesOutputSchema>;
 
@@ -141,8 +143,8 @@ const calculateStructuredScore = (userA: UserProfile, userB: UserProfile): { str
         return points;
     };
 
-    const pointsA = priorityPoints(userA.matchingPriority);
-    const pointsB = priorityPoints(userB.matchingPriority);
+    const pointsA = priorityPoints(userA.matchingPriority || []);
+    const pointsB = priorityPoints(userB.matchingPriority || []);
 
     let totalWeightedScore = 0;
     let totalWeight = 0;
@@ -174,7 +176,9 @@ const semanticPrompt = ai.definePrompt({
     output: {
         schema: z.object({
             semanticScore: z.number().min(0).max(50).describe("A score from 0-50 indicating semantic compatibility."),
-            matchAnalysis: z.string().describe("A concise, bulleted summary of the match, highlighting shared values, interests, and potential discussion points based on their self-descriptions. Use markdown for bullets.")
+            matchAnalysis: z.string().describe("A one-sentence summary of the overall match."),
+            aiStrengths: z.array(z.string()).describe("A list of 2-3 specific, positive compatibility points based on their text descriptions."),
+            aiConflicts: z.array(z.string()).describe("A list of 1-2 potential conflicts or discussion points based on their text descriptions."),
         })
     },
     prompt: `You are a roommate matching AI. Your task is to analyze the self-descriptions of two students to determine their compatibility.
@@ -191,12 +195,13 @@ const semanticPrompt = ai.definePrompt({
 
     Based on your analysis, provide a semantic compatibility score from 0 to 50.
 
-    Then, generate a concise match analysis summary in a bulleted list format using markdown.
-    - Start with a positive point of compatibility.
-    - Mention a potential point of conflict or something they should discuss.
-    - Add one more interesting shared point or difference.
-    - Do NOT use "User A" or "User B". Phrase it from the perspective of "Your profile" vs. "Their profile".
-    - Be friendly, helpful, and concise.`,
+    Then, generate the following:
+    1.  'matchAnalysis': A single, friendly sentence summarizing the overall compatibility.
+    2.  'aiStrengths': An array of 2-3 strings, each highlighting a specific positive alignment (e.g., "You both value a clean and organized living space.").
+    3.  'aiConflicts': An array of 1-2 strings, each highlighting a potential conflict or a point for discussion (e.g., "Your different sleep schedules might require some coordination.").
+
+    Do NOT use "User A" or "User B". Phrase it from the perspective of "Your profile" vs. "Their profile".
+    Be friendly, helpful, and concise.`,
 });
 
 
@@ -214,21 +219,23 @@ const matchProfilesFlow = ai.defineFlow(
         // 2. Get the semantic analysis from the AI (max 50 points)
         const { output: semanticResult } = await semanticPrompt(input);
         const semanticScore = semanticResult?.semanticScore || 25; // Default score if AI fails
-        const semanticAnalysis = semanticResult?.matchAnalysis || "Could not generate AI analysis.";
+        const matchAnalysis = semanticResult?.matchAnalysis || "Could not generate AI analysis.";
+        const aiStrengths = semanticResult?.aiStrengths || [];
+        const aiConflicts = semanticResult?.aiConflicts || [];
+
 
         // 3. Combine scores and analysis
         const finalScore = Math.min(100, structuredScore + semanticScore);
         
-        // This is a hack to fix the `conflicts` type issue
-        const flatConflicts: any = conflicts;
-
         return {
             compatibilityScore: finalScore,
-            matchAnalysis: semanticAnalysis,
+            matchAnalysis: matchAnalysis,
             structuredScore: structuredScore,
             semanticScore: semanticScore,
             strengths: strengths,
-            conflicts: flatConflicts,
+            conflicts: conflicts,
+            aiStrengths: aiStrengths,
+            aiConflicts: aiConflicts
         };
     }
 );
