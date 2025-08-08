@@ -5,12 +5,12 @@ import { getFirestore } from "firebase/firestore";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  projectId: "hostelmate-ai-2aup1",
-  appId: "1:508300914614:web:0e968634c84c417f7edb17",
-  storageBucket: "hostelmate-ai-2aup1.firebasestorage.app",
-  apiKey: "AIzaSyC11nL3KHw7YbSvU-muXXqok5fTV8xW-UQ",
-  authDomain: "hostelmate-ai-2aup1.firebaseapp.com",
-  messagingSenderId: "508300914614",
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
 // Initialize Firebase
