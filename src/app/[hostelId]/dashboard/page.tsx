@@ -7,7 +7,7 @@ import { UserProfile } from "@/lib/types";
 import { db } from "@/lib/firebase";
 import { collection, getDocs, query, where, doc, getDoc } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
 import { getMockUsers } from "@/lib/mock-data";
 import { matchProfiles, MatchProfilesOutput } from "@/ai/flows/match-profiles";
@@ -16,6 +16,7 @@ export type UserWithMatchData = UserProfile & Partial<MatchProfilesOutput>;
 
 export default function DashboardPage() {
   const params = useParams();
+  const router = useRouter();
   const { user: currentUser } = useAuth();
   const [usersWithMatches, setUsersWithMatches] = useState<UserWithMatchData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -28,6 +29,7 @@ export default function DashboardPage() {
       setLoading(true);
 
       if (!currentUser) {
+        // This case is for non-logged-in users, mock data is fine.
         const mockUsers = getMockUsers(6).map(u => ({
           ...u,
           compatibilityScore: Math.floor(Math.random() * 61) + 40,
@@ -44,18 +46,25 @@ export default function DashboardPage() {
 
       if (!currentUserDocSnap.exists()) {
         setLoading(false);
-        // Maybe redirect to profile creation if they are logged in but have no profile
+        // Redirect to create profile if they are logged in but have no profile
+        router.push(`/${hostelId}/profile/create`);
         return;
       }
       const currentUserProfile = { uid: currentUser.uid, ...currentUserDocSnap.data() } as UserProfile;
+      
+      // *** AUTHORIZATION CHECK ***
+      // If the user's stored hostelId does not match the one in the URL, redirect them.
+      if (currentUserProfile.hostelId !== hostelId) {
+        router.replace(`/${currentUserProfile.hostelId}/dashboard`);
+        // Don't continue loading data for the wrong hostel
+        return;
+      }
 
       // Fetch potential roommates from the same hostel
       const usersRef = collection(db, "users");
-      // This query requires a composite index in Firestore.
       const q = query(
         usersRef, 
         where("hostelId", "==", hostelId),
-        where("isLookingForRoommate", "==", true), 
         where("uid", "!=", currentUser.uid)
       );
       
@@ -67,12 +76,10 @@ export default function DashboardPage() {
         });
       } catch (error) {
         console.error("Error fetching users. This likely means you need to create a composite index in Firestore.", error);
-        // You might want to show a more user-friendly error message here
       }
       
       // Perform matching
       const matchPromises = fetchedUsers.map(otherUser => {
-        // Convert Firestore Timestamps to plain objects before passing to the server action
         const plainUserA = JSON.parse(JSON.stringify(currentUserProfile));
         const plainUserB = JSON.parse(JSON.stringify(otherUser));
 
@@ -80,7 +87,6 @@ export default function DashboardPage() {
           .then(matchResult => ({ ...otherUser, ...matchResult }))
           .catch(err => {
             console.error(`Failed to match with ${otherUser.name}:`, err);
-            // Return user with a default score on failure
             return { 
               ...otherUser, 
               compatibilityScore: 0,
@@ -91,7 +97,6 @@ export default function DashboardPage() {
       
       const matchedUsers = await Promise.all(matchPromises);
       
-      // Combine with mock data if needed to reach a minimum count
       const combinedUsers: UserWithMatchData[] = [...matchedUsers];
       if (combinedUsers.length < 6) {
         const mockUsers = getMockUsers(6);
@@ -114,7 +119,7 @@ export default function DashboardPage() {
     };
 
     fetchAndMatchUsers();
-  }, [currentUser, hostelId]);
+  }, [currentUser, hostelId, router]);
 
   if (loading) {
     return <div className="p-8">Finding your best matches...</div>;
