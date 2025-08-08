@@ -1,0 +1,47 @@
+[debug] [2025-08-08T10:42:36.197Z] ----------------------------------------------------------------------
+[debug] [2025-08-08T10:42:36.200Z] Command:       /nix/store/ws50yvm6vzlzf7jzz6n7xh4szddrack1-nodejs-20.19.1/bin/node /home/user/.global_modules/bin/firebase init
+[debug] [2025-08-08T10:42:36.202Z] CLI Version:   14.12.0
+[debug] [2025-08-08T10:42:36.202Z] Platform:      linux
+[debug] [2025-08-08T10:42:36.203Z] Node Version:  v20.19.1
+[debug] [2025-08-08T10:42:36.203Z] Time:          Fri Aug 08 2025 10:42:36 GMT+0000 (Coordinated Universal Time)
+[debug] [2025-08-08T10:42:36.203Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-08-08T10:42:36.209Z] Checked if tokens are valid: true, expires at: 1754653200164
+[debug] [2025-08-08T10:42:36.210Z] Checked if tokens are valid: true, expires at: 1754653200164
+[debug] [2025-08-08T10:42:36.213Z] >>> [apiv2][query] GET https://monospace-pa.googleapis.com/v1/workspaces/studio-2177760700 [none]
+[debug] [2025-08-08T10:42:36.778Z] <<< [apiv2][status] GET https://monospace-pa.googleapis.com/v1/workspaces/studio-2177760700 403
+[debug] [2025-08-08T10:42:36.779Z] <<< [apiv2][body] GET https://monospace-pa.googleapis.com/v1/workspaces/studio-2177760700 {"error":{"code":403,"message":"User is not authorized on this resource","status":"PERMISSION_DENIED"}}
+[error] Failed to fetch Firebase Project from current Studio Workspace: Request to https://monospace-pa.googleapis.com/v1/workspaces/studio-2177760700 had HTTP Error: 403, User is not authorized on this resource
+[debug] [2025-08-08T10:42:36.782Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/userinfo.email"]
+[debug] [2025-08-08T10:42:36.786Z] > authorizing via signed-in user (kintadasrirama3637f@gmail.com)
+[info] 
+     ######## #### ########  ######## ########     ###     ######  ########
+     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
+     ######    ##  ########  ######   ########  #########  ######  ######
+     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
+     ##       #### ##     ## ######## ########  ##     ##  ######  ########
+
+You're about to initialize a Firebase project in this directory:
+
+  /home/user/studio
+
+[info] 
+=== Project Setup
+[info] 
+[info] First, let's associate this project directory with a Firebase project.
+[info] You can create multiple project aliases by running firebase use --add, 
+[info] but for now we'll just set up a default project.
+[info] 
+[debug] [2025-08-08T10:43:07.174Z] Using project from CLI flag: hostelmate-ai-2aup1
+[debug] [2025-08-08T10:43:07.175Z] Checked if tokens are valid: true, expires at: 1754653200164
+[debug] [2025-08-08T10:43:07.175Z] Checked if tokens are valid: true, expires at: 1754653200164
+[debug] [2025-08-08T10:43:07.177Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/hostelmate-ai-2aup1 [none]
+[debug] [2025-08-08T10:43:07.489Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/hostelmate-ai-2aup1 403
+[debug] [2025-08-08T10:43:07.493Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/hostelmate-ai-2aup1 {"error":{"code":403,"message":"The caller does not have permission","status":"PERMISSION_DENIED"}}
+[debug] [2025-08-08T10:43:07.496Z] Request to https://firebase.googleapis.com/v1beta1/projects/hostelmate-ai-2aup1 had HTTP Error: 403, The caller does not have permission
+[debug] [2025-08-08T10:43:07.498Z] FirebaseError: Request to https://firebase.googleapis.com/v1beta1/projects/hostelmate-ai-2aup1 had HTTP Error: 403, The caller does not have permission
+    at responseToError (/home/user/.global_modules/lib/node_modules/firebase-tools/lib/responseToError.js:52:12)
+    at RetryOperation._fn (/home/user/.global_modules/lib/node_modules/firebase-tools/lib/apiv2.js:312:77)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[error] 
+[error] Error: Failed to get Firebase project hostelmate-ai-2aup1. Please make sure the project exists and your account has permission to access it.
