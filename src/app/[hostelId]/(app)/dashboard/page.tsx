@@ -31,6 +31,14 @@ export default function DashboardPage() {
         router.push(`/${hostelId}/auth`);
         return;
       }
+
+      // Check for cached data first
+      const cachedData = sessionStorage.getItem(`matchData_${currentUser.uid}`);
+      if (cachedData) {
+        setUsersWithMatches(JSON.parse(cachedData));
+        setLoading(false);
+        return;
+      }
       
       const currentUserDocRef = doc(db, "users", currentUser.uid);
       const currentUserDocSnap = await getDoc(currentUserDocRef);
@@ -72,7 +80,6 @@ export default function DashboardPage() {
         });
       } catch (error) {
         console.error("Error fetching users. This likely means you need to create a composite index in Firestore.", error);
-        // You might want to show a toast or an error message to the user here
       }
       
       const matchPromises = fetchedUsers.map(otherUser => {
@@ -93,6 +100,9 @@ export default function DashboardPage() {
       
       const matchedUsers = await Promise.all(matchPromises);
       
+      // Cache the new results
+      sessionStorage.setItem(`matchData_${currentUser.uid}`, JSON.stringify(matchedUsers));
+
       setUsersWithMatches(matchedUsers);
       setLoading(false);
     };

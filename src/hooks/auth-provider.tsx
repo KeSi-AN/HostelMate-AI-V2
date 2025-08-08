@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
@@ -32,6 +33,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        // Clear session storage on logout or session expiry
+        const uid = sessionStorage.getItem('currentUserUid');
+        if (uid) {
+          sessionStorage.removeItem(`matchData_${uid}`);
+          sessionStorage.removeItem('currentUserUid');
+        }
+      } else {
+        sessionStorage.setItem('currentUserUid', user.uid);
+      }
       setUser(user);
       setLoading(false);
     });
@@ -70,6 +81,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     try {
+      if (auth.currentUser) {
+        sessionStorage.removeItem(`matchData_${auth.currentUser.uid}`);
+        sessionStorage.removeItem('currentUserUid');
+      }
       await signOut(auth);
     } catch (error) {
         console.error("Error signing out: ", error);
