@@ -16,6 +16,14 @@ export const Step1_BasicInfo = () => {
             <FormField control={control} name="whatsapp" render={({ field }) => (
                 <FormItem><FormLabel>WhatsApp Number</FormLabel><FormControl><Input {...field} placeholder="+91 XXXXXXXXXX" /></FormControl><FormMessage /></FormItem>
             )} />
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField control={control} name="hostelBlock" render={({ field }) => (
+                    <FormItem><FormLabel>Hostel Block</FormLabel><FormControl><Input {...field} placeholder="e.g. A" /></FormControl><FormMessage /></FormItem>
+                )} />
+                <FormField control={control} name="roomNumber" render={({ field }) => (
+                    <FormItem><FormLabel>Room Number</FormLabel><FormControl><Input {...field} placeholder="e.g. 101" /></FormControl><FormMessage /></FormItem>
+                )} />
+            </div>
             <FormField control={control} name="yearOfStudy" render={({ field }) => (
                 <FormItem><FormLabel>Year of Study</FormLabel><Select onValueChange={field.onChange} value={field.value ?? undefined} >
                     <FormControl><SelectTrigger><SelectValue placeholder="Select year" /></SelectTrigger></FormControl>

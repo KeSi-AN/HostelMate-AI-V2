@@ -60,7 +60,7 @@ export function ProfileCreationWizard() {
 
   const handleNext = async () => {
     // This can be improved to trigger validation for the current step's fields
-    const isValid = true;
+    const isValid = true; // Replace with actual step validation if needed
     if (isValid) {
       if (currentStep < totalSteps - 1) {
         setCurrentStep(prev => prev + 1);
