@@ -34,11 +34,18 @@ export function AuthForm() {
     const hostelId = params.hostelId;
     const requiredDomain = 'students.iiserpune.ac.in';
 
-    const handleSuccess = async (currentUser: User) => {
-      // For email signup, we don't proceed to dashboard. We go to verify page.
-      // For Google sign in (already verified), we check profile and proceed.
-      if (!currentUser.emailVerified) {
+    const handleSuccess = async (currentUser: User, isNewUser: boolean = false) => {
+      // For new email signups, always go to verification page.
+      if (isNewUser && !currentUser.emailVerified) {
         router.push(`/${hostelId}/auth/verify-email`);
+        return;
+      }
+
+      // For all other logins (Google, or existing email user) check for verification.
+      if (!currentUser.emailVerified) {
+        // This case should be handled by signInWithEmail which logs them out,
+        // but as a fallback, we prevent proceeding.
+        toast({ variant: "destructive", title: "Email Not Verified", description: "Please verify your email before logging in." });
         return;
       }
       
@@ -97,7 +104,8 @@ export function AuthForm() {
       setLoading(true);
       const result = await signUpWithEmail(signupEmail, signupPassword);
        if (result.user) {
-        await handleSuccess(result.user);
+        // Pass `true` to indicate this is a new user signup
+        await handleSuccess(result.user, true);
       }
       setLoading(false);
     }

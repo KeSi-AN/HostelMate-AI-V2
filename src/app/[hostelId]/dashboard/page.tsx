@@ -28,18 +28,12 @@ export default function DashboardPage() {
     const fetchAndMatchUsers = async () => {
       setLoading(true);
 
-      if (!currentUser) {
-        // This case is for non-logged-in users, mock data is fine.
-        const mockUsers = getMockUsers(6).map(u => ({
-          ...u,
-          compatibilityScore: Math.floor(Math.random() * 61) + 40,
-          matchAnalysis: "Log in to see a real AI-powered match analysis.",
-        }));
-        setUsersWithMatches(mockUsers);
-        setLoading(false);
+      // **SECURITY**: If user is not logged in or email is not verified, redirect to auth page.
+      if (!currentUser || !currentUser.emailVerified) {
+        router.push(`/${hostelId}/auth`);
         return;
       }
-
+      
       // Fetch current user's full profile
       const currentUserDocRef = doc(db, "users", currentUser.uid);
       const currentUserDocSnap = await getDoc(currentUserDocRef);
@@ -80,6 +74,7 @@ export default function DashboardPage() {
       
       // Perform matching
       const matchPromises = fetchedUsers.map(otherUser => {
+        // Convert Firestore Timestamps to plain objects before sending to server action
         const plainUserA = JSON.parse(JSON.stringify(currentUserProfile));
         const plainUserB = JSON.parse(JSON.stringify(otherUser));
 
