@@ -1,4 +1,5 @@
 import { Header } from "@/components/dashboard/header";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function AppLayout({
   children,
