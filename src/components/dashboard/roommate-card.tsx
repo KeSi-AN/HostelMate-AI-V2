@@ -9,6 +9,7 @@ import Image from 'next/image';
 import { Separator } from '../ui/separator';
 import { UserWithMatchData } from '@/app/[hostelId]/dashboard/page';
 import { Avatar, AvatarFallback } from '../ui/avatar';
+import { generateAvatarColor } from '@/lib/utils';
 
 type RoommateCardProps = {
   user: UserWithMatchData;
@@ -32,6 +33,7 @@ function MatchPercentage({ score }: { score: number }) {
 
 export function RoommateCard({ user }: RoommateCardProps) {
   const matchScore = user.compatibilityScore || 0;
+  const avatarColor = generateAvatarColor(user.name);
 
   return (
     <Card className="overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300">
@@ -39,7 +41,7 @@ export function RoommateCard({ user }: RoommateCardProps) {
             <AccordionItem value="item-1" className="border-b-0">
                 <CardHeader className="p-4 flex flex-row items-start gap-4 space-y-0">
                     <Avatar className="w-20 h-20 border-2 border-primary/20">
-                      <AvatarFallback className="text-3xl">
+                      <AvatarFallback className="text-3xl" style={{ backgroundColor: avatarColor.background, color: avatarColor.foreground }}>
                         {user.name.charAt(0).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>

@@ -30,7 +30,7 @@ export function FilterSidebar({ onFilterChange }: FilterSidebarProps) {
         search: '',
         years: [],
         branches: [],
-        matchPercentage: 50,
+        matchPercentage: 0,
         sortBy: 'match-desc',
     });
     

@@ -3,7 +3,6 @@
 
 import Link from "next/link";
 import {
-  Bell,
   Settings,
   User,
   LogOut,
@@ -60,10 +59,6 @@ export function Header({ hostelName }: HeaderProps) {
       <div className="flex w-full items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
         <div className="ml-auto flex-1 sm:flex-initial">
         </div>
-        <Button variant="ghost" size="icon" className="rounded-full">
-            <Bell className="h-5 w-5" />
-            <span className="sr-only">Toggle notifications</span>
-        </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="secondary" size="icon" className="rounded-full">
