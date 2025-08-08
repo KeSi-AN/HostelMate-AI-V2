@@ -81,7 +81,7 @@ export function DashboardClient({ users, hostelName }: { users: UserWithMatchDat
 
   return (
     <>
-      <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2">
         <Card>
           <CardHeader className="pb-2 flex flex-row items-center justify-between">
             <CardTitle className="text-sm font-medium">Active Students</CardTitle>
@@ -89,7 +89,7 @@ export function DashboardClient({ users, hostelName }: { users: UserWithMatchDat
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{users.length}</div>
-            <p className="text-xs text-muted-foreground">Looking for a roommate</p>
+            <p className="text-xs text-muted-foreground">Looking for a roommate in {hostelName}</p>
           </CardContent>
         </Card>
         <Card>
@@ -100,16 +100,6 @@ export function DashboardClient({ users, hostelName }: { users: UserWithMatchDat
           <CardContent>
             <div className="text-2xl font-bold">{avgMatch}%</div>
             <p className="text-xs text-muted-foreground">Average compatibility score</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2 flex flex-row items-center justify-between">
-            <CardTitle className="text-sm font-medium">Profile Views</CardTitle>
-            <Eye className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">12</div>
-            <p className="text-xs text-muted-foreground">Views today</p>
           </CardContent>
         </Card>
       </div>
