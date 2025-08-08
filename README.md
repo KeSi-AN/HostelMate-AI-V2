@@ -41,3 +41,4 @@ This project was bootstrapped in Firebase Studio and developed iteratively. Here
     *   **Visual AI Analysis**: Redesigned the AI compatibility section on roommate cards to be more engaging, using green checkmarks for strengths and orange warning signs for conflicts.
     *   **UI Cleanup**: Removed non-functional UI elements like the "Profile Views" card and the notification bell to create a cleaner, more focused interface.
     *   **Filter Defaults**: Adjusted the default match filter to 0% to ensure all potential matches are visible on first load.
+    meow
