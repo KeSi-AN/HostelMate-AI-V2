@@ -100,7 +100,7 @@ export function ProfileCreationWizard() {
         router.push(`/${hostelId}/dashboard`);
     } catch (error) {
         console.error("Error creating profile:", error);
-        toast({ variant: "destructive", title: "Error", description: "There was issue saving your profile" });
+        toast({ variant: "destructive", title: "Error", description: "There was an issue saving your profile" });
     } finally {
         setIsSubmitting(false);
     }
