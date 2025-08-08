@@ -33,7 +33,16 @@ export const Step1_BasicInfo = () => {
             <FormField control={control} name="branch" render={({ field }) => (
                 <FormItem><FormLabel>Branch/Department</FormLabel><Select onValueChange={field.onChange} value={field.value ?? undefined}>
                     <FormControl><SelectTrigger><SelectValue placeholder="Select branch" /></SelectTrigger></FormControl>
-                    <SelectContent><SelectItem value="ECS">ECS</SelectItem><SelectItem value="HSS">HSS</SelectItem><SelectItem value="Mathematics">Mathematics</SelectItem><SelectItem value="Physics">Physics</SelectItem><SelectItem value="Biology">Biology</SelectItem><SelectItem value="Chemistry">Chemistry</SelectItem><SelectItem value="Data Science">Data Science</SelectItem></SelectContent>
+                    <SelectContent>
+                        <SelectItem value="ECS">ECS</SelectItem>
+                        <SelectItem value="HSS">HSS</SelectItem>
+                        <SelectItem value="Mathematics">Mathematics</SelectItem>
+                        <SelectItem value="Physics">Physics</SelectItem>
+                        <SelectItem value="Biology">Biology</SelectItem>
+                        <SelectItem value="Chemistry">Chemistry</SelectItem>
+                        <SelectItem value="Data Science">Data Science</SelectItem>
+                        <SelectItem value="Interdisciplinary">Interdisciplinary</SelectItem>
+                    </SelectContent>
                 </Select><FormMessage /></FormItem>
             )} />
             <FormField control={control} name="rollNumber" render={({ field }) => (

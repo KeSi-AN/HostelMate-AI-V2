@@ -7,7 +7,7 @@ export interface UserProfile {
   name: string;
   whatsapp: string;
   yearOfStudy: 'Freshman' | 'Sophomore' | 'Junior' | 'Senior' | null;
-  branch: 'ECS' | 'HSS' | 'Mathematics' | 'Physics' | 'Biology' | 'Chemistry' | 'Data Science' | null;
+  branch: 'ECS' | 'HSS' | 'Mathematics' | 'Physics' | 'Biology' | 'Chemistry' | 'Data Science' | 'Interdisciplinary' | null;
   rollNumber: string;
   currentFloor: 'Ground' | '1st' | '2nd' | '3rd' | '4th' | null;
   hostelBlock: string;

@@ -111,7 +111,7 @@ export function FilterSidebar({ onFilterChange }: FilterSidebarProps) {
                 <div>
                     <Label className="font-semibold">Branch</Label>
                     <div className="space-y-2 mt-2">
-                        {['ECS', 'HSS', 'Mathematics', 'Physics', 'Biology'].map(branch => (
+                        {['ECS', 'HSS', 'Mathematics', 'Physics', 'Biology', 'Data Science', 'Interdisciplinary'].map(branch => (
                             <div key={branch} className="flex items-center space-x-2">
                                 <Checkbox 
                                     id={`branch-${branch}`} 
