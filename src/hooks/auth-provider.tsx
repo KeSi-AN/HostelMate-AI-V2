@@ -5,8 +5,6 @@ import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import { 
   onAuthStateChanged, 
   User, 
-  GoogleAuthProvider, 
-  signInWithPopup, 
   signOut, 
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword,
@@ -20,7 +18,6 @@ import { useToast } from './use-toast';
 export interface AuthContextType {
   user: User | null;
   loading: boolean;
-  signInWithGoogle: () => Promise<UserCredential | null>;
   signUpWithEmail: (email:string, password:string) => Promise<any>;
   signInWithEmail: (email:string, password:string) => Promise<any>;
   logout: () => Promise<void>;
@@ -40,17 +37,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
     return () => unsubscribe();
   }, []);
-
-  const signInWithGoogle = async () => {
-    const provider = new GoogleAuthProvider();
-    try {
-      return await signInWithPopup(auth, provider);
-    } catch (error) {
-      console.error("Error signing in with Google: ", error);
-      toast({ variant: "destructive", title: "Sign-in Error", description: "Could not sign in with Google. Please try again." });
-      return null;
-    }
-  };
 
   const signUpWithEmail = async (email: string, password: string) => {
     try {
@@ -95,7 +81,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const value: AuthContextType = {
     user,
     loading,
-    signInWithGoogle,
     signUpWithEmail,
     signInWithEmail,
     logout
