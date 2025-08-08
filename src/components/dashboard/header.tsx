@@ -21,6 +21,7 @@ import { Logo } from "../logo";
 import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
 import { Avatar, AvatarFallback } from "../ui/avatar";
+import { generateAvatarColor } from "@/lib/utils";
 
 type HeaderProps = {
     hostelName: string;
@@ -43,6 +44,8 @@ export function Header({ hostelName }: HeaderProps) {
     return null;
   }
   
+  const avatarColor = generateAvatarColor(currentUser.email || '');
+
   return (
     <header className="sticky top-0 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6 z-50">
       <nav className="hidden flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6">
@@ -63,7 +66,7 @@ export function Header({ hostelName }: HeaderProps) {
           <DropdownMenuTrigger asChild>
             <Button variant="secondary" size="icon" className="rounded-full">
                <Avatar>
-                  <AvatarFallback>
+                  <AvatarFallback style={{ backgroundColor: avatarColor.background, color: avatarColor.foreground }}>
                     {currentUser.email?.charAt(0).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
