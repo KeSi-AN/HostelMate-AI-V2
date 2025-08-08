@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Users } from 'lucide-react';
+import { ArrowRight, Users, ShieldAlert } from 'lucide-react';
 import { Logo } from '@/components/logo';
 
 export default function LandingPage() {
@@ -64,8 +64,17 @@ export default function LandingPage() {
           </div>
         </div>
       </main>
-       <footer className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center text-muted-foreground">
-        <p>&copy; {new Date().getFullYear()} HostelMate AI. All rights reserved.</p>
+       <footer className="container mx-auto px-4 sm:px-6 lg:px-8 py-10 text-center text-muted-foreground">
+        <div className="max-w-3xl mx-auto text-sm border-t pt-8">
+            <div className="flex justify-center items-center gap-2 mb-4">
+                <ShieldAlert className="w-5 h-5 text-primary" />
+                <h3 className="font-semibold text-foreground text-lg">Platform Notice</h3>
+            </div>
+            <p className="mb-6">
+              Please use HostelMate AI responsibly. This platform is designed solely for students to find compatible roommates. Misuse of user data or services, scraping, and any form of malicious activity are strictly prohibited. We have multiple security checks and monitoring systems in place to ensure a safe and respectful community. Any violation of these terms will result in permanent account suspension.
+            </p>
+            <p>&copy; {new Date().getFullYear()} HostelMate AI. All rights reserved.</p>
+        </div>
       </footer>
     </div>
   );
