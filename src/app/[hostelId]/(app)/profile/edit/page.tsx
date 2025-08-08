@@ -4,8 +4,6 @@
 import { useEffect, useState } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { ProfileCreationWizard } from "@/components/profile/profile-creation-wizard";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Terminal } from "lucide-react";
 import { useAuth } from '@/hooks/use-auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
@@ -22,7 +20,6 @@ export default function EditProfilePage() {
     const hostelId = params.hostelId;
     
     const methods = useForm<UserProfile>({
-        // Default values will be populated by the fetch effect
     });
 
     useEffect(() => {

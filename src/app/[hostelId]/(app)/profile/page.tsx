@@ -46,7 +46,6 @@ export default function ProfilePage() {
           setProfile({ ...data, uid: currentUser.uid });
         } else {
           console.log('No such document!');
-          // Optionally redirect to create profile page
           router.push(`/${hostelId}/profile/create`);
         }
       }
@@ -75,8 +74,6 @@ export default function ProfilePage() {
     if (!currentUser) return;
     try {
         await deleteDoc(doc(db, "users", currentUser.uid));
-        // We can also delete the auth user, but that is a more sensitive operation.
-        // For now we just delete the profile data and log them out.
         toast({ title: "Profile Deleted", description: "Your profile has been successfully deleted." });
         await logout();
         router.push('/');
@@ -103,7 +100,6 @@ export default function ProfilePage() {
         </Link>
 
         <div className="space-y-6">
-          {/* Header Card */}
           <Card>
             <CardHeader>
               <div className="flex justify-between items-start">
@@ -130,7 +126,6 @@ export default function ProfilePage() {
             </CardHeader>
           </Card>
 
-          {/* Contact & Room Info */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card>
               <CardHeader>
@@ -162,7 +157,6 @@ export default function ProfilePage() {
             </Card>
           </div>
 
-          {/* Daily Routine */}
           <Card>
             <CardHeader>
               <div className="flex justify-between items-center">
@@ -194,7 +188,6 @@ export default function ProfilePage() {
             </CardContent>
           </Card>
 
-          {/* Study Preferences */}
           <Card>
             <CardHeader>
               <CardTitle className="text-lg flex items-center">
@@ -220,7 +213,6 @@ export default function ProfilePage() {
             </CardContent>
           </Card>
 
-          {/* Lifestyle */}
           <Card>
             <CardHeader>
                 <CardTitle className="text-lg flex items-center">
@@ -254,7 +246,6 @@ export default function ProfilePage() {
             </CardContent>
           </Card>
 
-          {/* Social Activities */}
           <Card>
             <CardHeader>
                 <CardTitle className="text-lg flex items-center">
@@ -292,7 +283,6 @@ export default function ProfilePage() {
             </CardContent>
           </Card>
 
-          {/* Additional Details */}
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">About Me</CardTitle>
@@ -311,7 +301,6 @@ export default function ProfilePage() {
             </CardContent>
           </Card>
 
-          {/* Matching Priority */}
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Matching Priority</CardTitle>
@@ -330,7 +319,6 @@ export default function ProfilePage() {
             </CardContent>
           </Card>
 
-          {/* Danger Zone */}
           <Card className="border-destructive/50">
             <CardHeader>
               <CardTitle className="text-lg text-destructive">Danger Zone</CardTitle>

@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEffect } from 'react';
@@ -67,7 +68,6 @@ export default function CreateProfilePage() {
     const hostelId = params.hostelId;
 
     useEffect(() => {
-        // If not loading and user is not authenticated or email is not verified, redirect.
         if (!loading && (!currentUser || !currentUser.emailVerified)) {
             router.push(`/${hostelId}/auth`);
         }

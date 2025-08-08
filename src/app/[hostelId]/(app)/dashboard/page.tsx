@@ -28,33 +28,26 @@ export default function DashboardPage() {
     const fetchAndMatchUsers = async () => {
       setLoading(true);
 
-      // **SECURITY**: If user is not logged in or email is not verified, redirect to auth page.
       if (!currentUser || !currentUser.emailVerified) {
         router.push(`/${hostelId}/auth`);
         return;
       }
       
-      // Fetch current user's full profile
       const currentUserDocRef = doc(db, "users", currentUser.uid);
       const currentUserDocSnap = await getDoc(currentUserDocRef);
 
       if (!currentUserDocSnap.exists()) {
         setLoading(false);
-        // Redirect to create profile if they are logged in but have no profile
         router.push(`/${hostelId}/profile/create`);
         return;
       }
       const currentUserProfile = { uid: currentUser.uid, ...currentUserDocSnap.data() } as UserProfile;
       
-      // *** AUTHORIZATION CHECK ***
-      // If the user's stored hostelId does not match the one in the URL, redirect them.
       if (currentUserProfile.hostelId !== hostelId) {
         router.replace(`/${currentUserProfile.hostelId}/dashboard`);
-        // Don't continue loading data for the wrong hostel
         return;
       }
 
-      // Fetch potential roommates from the same hostel
       const usersRef = collection(db, "users");
       const q = query(
         usersRef, 
@@ -72,9 +65,7 @@ export default function DashboardPage() {
         console.error("Error fetching users. This likely means you need to create a composite index in Firestore.", error);
       }
       
-      // Perform matching
       const matchPromises = fetchedUsers.map(otherUser => {
-        // Convert Firestore Timestamps to plain objects before sending to server action
         const plainUserA = JSON.parse(JSON.stringify(currentUserProfile));
         const plainUserB = JSON.parse(JSON.stringify(otherUser));
 
@@ -113,10 +104,12 @@ export default function DashboardPage() {
       setLoading(false);
     };
 
-    fetchAndMatchUsers();
+    if (currentUser) {
+      fetchAndMatchUsers();
+    }
   }, [currentUser, hostelId, router]);
 
-  if (loading) {
+  if (loading || !currentUser) {
     return <div className="p-8">Finding your best matches...</div>;
   }
   
