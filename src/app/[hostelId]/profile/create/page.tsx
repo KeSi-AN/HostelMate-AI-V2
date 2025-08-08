@@ -1,6 +1,9 @@
 
 'use client';
 
+import { useEffect } from 'react';
+import { useRouter, useParams } from 'next/navigation';
+import { useAuth } from '@/hooks/use-auth';
 import { ProfileCreationWizard } from "@/components/profile/profile-creation-wizard";
 import { FormProvider, useForm } from "react-hook-form";
 import type { UserProfile } from "@/lib/types";
@@ -57,6 +60,22 @@ export default function CreateProfilePage() {
             matchingPriority: [],
         }
     });
+
+    const { user: currentUser, loading } = useAuth();
+    const router = useRouter();
+    const params = useParams();
+    const hostelId = params.hostelId;
+
+    useEffect(() => {
+        // If not loading and user is not authenticated or email is not verified, redirect.
+        if (!loading && (!currentUser || !currentUser.emailVerified)) {
+            router.push(`/${hostelId}/auth`);
+        }
+    }, [currentUser, loading, router, hostelId]);
+
+    if (loading || !currentUser) {
+        return <div className="p-8">Loading...</div>;
+    }
 
     return (
         <div className="container mx-auto max-w-4xl py-8">

@@ -11,37 +11,48 @@ import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { UserProfile } from '@/lib/types';
 import { Button } from '@/components/ui/button';
+import { useParams, useRouter } from 'next/navigation';
 
 
 export default function EditProfilePage() {
-    const { user: currentUser } = useAuth();
+    const { user: currentUser, loading: authLoading } = useAuth();
     const [loading, setLoading] = useState(true);
+    const router = useRouter();
+    const params = useParams();
+    const hostelId = params.hostelId;
+    
     const methods = useForm<UserProfile>({
         // Default values will be populated by the fetch effect
     });
 
     useEffect(() => {
+        if (authLoading) {
+            return;
+        }
+
+        if (!currentUser || !currentUser.emailVerified) {
+            router.push(`/${hostelId}/auth`);
+            return;
+        }
+
         const fetchProfileData = async () => {
-            if (currentUser) {
-                try {
-                    const docRef = doc(db, 'users', currentUser.uid);
-                    const docSnap = await getDoc(docRef);
-                    if (docSnap.exists()) {
-                        methods.reset(docSnap.data() as UserProfile);
-                    }
-                } catch (e) {
-                    console.error("Failed to fetch profile data:", e);
-                } finally {
-                    setLoading(false);
+            setLoading(true);
+            try {
+                const docRef = doc(db, 'users', currentUser.uid);
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    methods.reset(docSnap.data() as UserProfile);
                 }
-            } else {
+            } catch (e) {
+                console.error("Failed to fetch profile data:", e);
+            } finally {
                 setLoading(false);
             }
         };
         fetchProfileData();
-    }, [currentUser, methods]);
+    }, [currentUser, authLoading, methods, router, hostelId]);
 
-    if (loading) {
+    if (authLoading || loading) {
         return (
             <div className="container mx-auto max-w-4xl py-8">
                 <h1 className="text-3xl font-bold font-headline mb-2">Edit Your Profile</h1>
