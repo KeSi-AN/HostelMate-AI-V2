@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
@@ -9,6 +10,7 @@ import {
   signOut, 
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword,
+  sendEmailVerification,
   UserCredential
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
@@ -53,6 +55,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signUpWithEmail = async (email: string, password: string) => {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      // Send verification email
+      await sendEmailVerification(userCredential.user);
+      toast({ title: "Verification Email Sent", description: "Please check your inbox to verify your email address." });
       return userCredential;
     } catch (error: any) {
       console.error("Error signing up: ", error);
@@ -64,6 +69,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signInWithEmail = async (email: string, password: string) => {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      if (!userCredential.user.emailVerified) {
+        toast({ variant: "destructive", title: "Email Not Verified", description: "Please verify your email address before logging in. Check your inbox." });
+        await signOut(auth); // Sign out the user
+        return { error: { message: "Email not verified." } };
+      }
       return userCredential;
     } catch (error: any) {
       console.error("Error signing in: ", error);

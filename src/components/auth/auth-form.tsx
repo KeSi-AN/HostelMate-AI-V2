@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -34,6 +35,13 @@ export function AuthForm() {
     const requiredDomain = 'students.iiserpune.ac.in';
 
     const handleSuccess = async (currentUser: User) => {
+      // For email signup, we don't proceed to dashboard. We go to verify page.
+      // For Google sign in (already verified), we check profile and proceed.
+      if (!currentUser.emailVerified) {
+        router.push(`/${hostelId}/auth/verify-email`);
+        return;
+      }
+      
       setLoading(true);
       try {
         const profileRef = doc(db, 'users', currentUser.uid);
@@ -47,7 +55,6 @@ export function AuthForm() {
       } catch (error) {
         console.error("Error checking profile:", error);
         toast({ variant: "destructive", title: "Error", description: "Could not verify profile. Please try again." });
-        // Fallback to profile creation on error
         router.push(`/${hostelId}/profile/create`);
       } finally {
         setLoading(false);
