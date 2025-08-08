@@ -9,7 +9,6 @@ import { collection, getDocs, query, where, doc, getDoc } from "firebase/firesto
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
-import { getMockUsers } from "@/lib/mock-data";
 import { matchProfiles, MatchProfilesOutput } from "@/ai/flows/match-profiles";
 
 export type UserWithMatchData = UserProfile & Partial<MatchProfilesOutput>;
@@ -63,6 +62,7 @@ export default function DashboardPage() {
         });
       } catch (error) {
         console.error("Error fetching users. This likely means you need to create a composite index in Firestore.", error);
+        // You might want to show a toast or an error message to the user here
       }
       
       const matchPromises = fetchedUsers.map(otherUser => {
@@ -83,24 +83,7 @@ export default function DashboardPage() {
       
       const matchedUsers = await Promise.all(matchPromises);
       
-      const combinedUsers: UserWithMatchData[] = [...matchedUsers];
-      if (combinedUsers.length < 6) {
-        const mockUsers = getMockUsers(6);
-        const existingUids = new Set(matchedUsers.map(u => u.uid));
-
-        for (const mockUser of mockUsers) {
-            if (combinedUsers.length >= 6) break;
-            if (!existingUids.has(mockUser.uid)) {
-              combinedUsers.push({
-                 ...mockUser,
-                 compatibilityScore: Math.floor(Math.random() * 61) + 40,
-                 matchAnalysis: "This is a mock user profile for demonstration.",
-              });
-            }
-        }
-      }
-
-      setUsersWithMatches(combinedUsers);
+      setUsersWithMatches(matchedUsers);
       setLoading(false);
     };
 
