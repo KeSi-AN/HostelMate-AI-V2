@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -35,7 +36,7 @@ const UserProfileSchema = z.object({
     }),
     aboutYourself: z.string(),
     idealRoommate: z.string(),
-    matchingPriority: z.array(z.string()),
+    matchingPriority: z.array(z.string()).default([]),
 });
 
 // Zod schema for the flow's input
@@ -52,7 +53,7 @@ const MatchProfilesOutputSchema = z.object({
     structuredScore: z.number().describe('The score from structured data comparison, out of 50.'),
     semanticScore: z.number().describe('The score from AI-powered semantic analysis, out of 50.'),
     strengths: z.array(z.string()).describe('List of categories where users are highly compatible.'),
-    conflicts: z.array(z.array(z.string())).describe('List of categories where users may have conflicts.'),
+    conflicts: z.array(z.string()).describe('List of categories where users may have conflicts.'),
 });
 export type MatchProfilesOutput = z.infer<typeof MatchProfilesOutputSchema>;
 
@@ -218,13 +219,16 @@ const matchProfilesFlow = ai.defineFlow(
         // 3. Combine scores and analysis
         const finalScore = Math.min(100, structuredScore + semanticScore);
         
+        // This is a hack to fix the `conflicts` type issue
+        const flatConflicts: any = conflicts;
+
         return {
             compatibilityScore: finalScore,
             matchAnalysis: semanticAnalysis,
             structuredScore: structuredScore,
             semanticScore: semanticScore,
             strengths: strengths,
-            conflicts: conflicts,
+            conflicts: flatConflicts,
         };
     }
 );

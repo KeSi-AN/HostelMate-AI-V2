@@ -40,7 +40,12 @@ export default function DashboardPage() {
         router.push(`/${hostelId}/profile/create`);
         return;
       }
-      const currentUserProfile = { uid: currentUser.uid, ...currentUserDocSnap.data() } as UserProfile;
+      const currentUserProfileData = currentUserDocSnap.data();
+      const currentUserProfile = { 
+        uid: currentUser.uid, 
+        ...currentUserProfileData,
+        matchingPriority: currentUserProfileData.matchingPriority || [],
+      } as UserProfile;
       
       if (currentUserProfile.hostelId !== hostelId) {
         router.replace(`/${currentUserProfile.hostelId}/dashboard`);
@@ -58,7 +63,12 @@ export default function DashboardPage() {
       try {
         const querySnapshot = await getDocs(q);
         querySnapshot.forEach((doc) => {
-          fetchedUsers.push({ uid: doc.id, ...doc.data() } as UserProfile);
+          const data = doc.data();
+          fetchedUsers.push({ 
+            uid: doc.id, 
+            ...data,
+            matchingPriority: data.matchingPriority || [],
+          } as UserProfile);
         });
       } catch (error) {
         console.error("Error fetching users. This likely means you need to create a composite index in Firestore.", error);
