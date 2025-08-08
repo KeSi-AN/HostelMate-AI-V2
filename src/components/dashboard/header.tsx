@@ -19,9 +19,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Logo } from "../logo";
-import Image from "next/image";
-import { useParams, useRouter, usePathname } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
+import { Avatar, AvatarFallback } from "../ui/avatar";
 
 type HeaderProps = {
     hostelName: string;
@@ -30,7 +30,6 @@ type HeaderProps = {
 export function Header({ hostelName }: HeaderProps) {
   const params = useParams();
   const router = useRouter();
-  const pathname = usePathname();
   const { user: currentUser, logout } = useAuth();
   const hostelId = params.hostelId;
 
@@ -68,14 +67,11 @@ export function Header({ hostelName }: HeaderProps) {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="secondary" size="icon" className="rounded-full">
-              <Image 
-                src="https://placehold.co/40x40.png"
-                width={40}
-                height={40}
-                alt="User Avatar"
-                className="rounded-full"
-                data-ai-hint="profile picture"
-              />
+               <Avatar>
+                  <AvatarFallback>
+                    {currentUser.email?.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
               <span className="sr-only">Toggle user menu</span>
             </Button>
           </DropdownMenuTrigger>

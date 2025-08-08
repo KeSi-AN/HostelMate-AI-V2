@@ -8,6 +8,7 @@ import { Copy, MessageSquare, UserCheck, UserX, CheckCircle2, AlertTriangle } fr
 import Image from 'next/image';
 import { Separator } from '../ui/separator';
 import { UserWithMatchData } from '@/app/[hostelId]/dashboard/page';
+import { Avatar, AvatarFallback } from '../ui/avatar';
 
 type RoommateCardProps = {
   user: UserWithMatchData;
@@ -37,14 +38,11 @@ export function RoommateCard({ user }: RoommateCardProps) {
         <Accordion type="single" collapsible>
             <AccordionItem value="item-1" className="border-b-0">
                 <CardHeader className="p-4 flex flex-row items-start gap-4 space-y-0">
-                    <Image
-                        src={`https://placehold.co/80x80.png`}
-                        alt={user.name}
-                        width={80}
-                        height={80}
-                        className="rounded-full border-2 border-primary/20"
-                        data-ai-hint="profile picture"
-                    />
+                    <Avatar className="w-20 h-20 border-2 border-primary/20">
+                      <AvatarFallback className="text-3xl">
+                        {user.name.charAt(0).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
                     <div className="grid gap-1 flex-1">
                         <h3 className="text-lg font-semibold font-headline">{user.name}</h3>
                         <div className="flex flex-wrap gap-1">
