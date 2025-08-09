@@ -15,27 +15,27 @@ import { ai } from '@/ai/genkit';
 import { UserProfile } from '@/lib/types';
 import { z } from 'zod';
 
-// Zod schema for the UserProfile, covering only the fields needed for matching.
+// Zod schema for the UserProfile, making nested objects and their properties optional
 const UserProfileSchema = z.object({
     uid: z.string(),
     dailyRoutine: z.object({
-        wakeUp: z.string().nullable(),
-        sleep: z.string().nullable(),
-    }),
+        wakeUp: z.string().nullable().optional(),
+        sleep: z.string().nullable().optional(),
+    }).optional().default({}),
     studyPreferences: z.object({
-        location: z.string().nullable(),
-        style: z.string().nullable(),
-    }),
+        location: z.string().nullable().optional(),
+        style: z.string().nullable().optional(),
+    }).optional().default({}),
     lifestyle: z.object({
-        cleanliness: z.string().nullable(),
-        visitors: z.string().nullable(),
-    }),
+        cleanliness: z.string().nullable().optional(),
+        visitors: z.string().nullable().optional(),
+    }).optional().default({}),
     socialActivities: z.object({
-        sports: z.string().nullable(),
-        weekend: z.string().nullable(),
-    }),
-    aboutYourself: z.string(),
-    idealRoommate: z.string(),
+        sports: z.string().nullable().optional(),
+        weekend: z.string().nullable().optional(),
+    }).optional().default({}),
+    aboutYourself: z.string().optional().default(''),
+    idealRoommate: z.string().optional().default(''),
     matchingPriority: z.array(z.string()).optional().default([]),
 });
 
@@ -92,7 +92,7 @@ const scoreField = (valA: string | null, valB: string | null, isOrdinal: boolean
     }
 };
 
-const calculateStructuredScore = (userA: UserProfile, userB: UserProfile): { structuredScore: number, strengths: string[], conflicts: string[] } => {
+const calculateStructuredScore = (userA: Partial<UserProfile>, userB: Partial<UserProfile>): { structuredScore: number, strengths: string[], conflicts: string[] } => {
     const categories = {
         'Daily Routine': {
             fields: { wakeUp: 'wakeUp', sleep: 'sleep' },
